@@ -1,3 +1,4 @@
+#![allow(unused)]
 use log::*;
 use std::{
     collections::HashSet,
@@ -27,10 +28,7 @@ impl Discovery {
         Self::start_with_interval(config, Duration::from_secs(5))
     }
 
-    pub fn start_with_interval(
-        config: DiscoverConfig,
-        poll_interval: Duration,
-    ) -> Self {
+    pub fn start_with_interval(config: DiscoverConfig, poll_interval: Duration) -> Self {
         // Use a sync_channel instead of channel so that `event_emitter.send`
         // will block until the main threead is actually listening
         // This will allow dialumi to start discovery early on in startup
@@ -38,8 +36,7 @@ impl Discovery {
         // discovery events
         // This pattern is called a "rendezvous chanenl"
         let (event_emitter, event_handler) = std::sync::mpsc::sync_channel(0);
-        let (stop_sig_emitter, stop_sig_receiver) =
-            std::sync::mpsc::channel::<()>();
+        let (stop_sig_emitter, stop_sig_receiver) = std::sync::mpsc::channel::<()>();
 
         let handle = std::thread::spawn(move || {
             let mut addrs_found = HashSet::new();
@@ -73,9 +70,7 @@ impl Discovery {
                     })
                     .collect::<Vec<Device>>();
 
-                if let Err(err) =
-                    event_emitter.send(DiscoveryEvent::DevicesFound(devices))
-                {
+                if let Err(err) = event_emitter.send(DiscoveryEvent::DevicesFound(devices)) {
                     error!("DeviceFound event send error {:?}", err);
                 }
 

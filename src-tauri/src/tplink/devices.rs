@@ -1,3 +1,4 @@
+#![allow(unused)]
 use super::{
     capabilities::{CachedControlParams, ControlParams},
     error::TpResult,
@@ -43,9 +44,7 @@ macro_rules! new_device {
             pub fn new(addr: SocketAddr, data: &DeviceData) -> Self {
                 Self {
                     addr: addr.clone(),
-                    control_params: ControlParams::from_sysinfo(
-                        &data.system.sysinfo,
-                    ),
+                    control_params: ControlParams::from_sysinfo(&data.system.sysinfo),
                     info: DeviceInfo::new(addr, data.clone()),
                 }
             }
@@ -88,17 +87,11 @@ pub enum Device {
 }
 
 impl Device {
-    pub fn from_data(
-        addr: SocketAddr,
-        device_data: &DeviceData,
-    ) -> Option<Device> {
+    pub fn from_data(addr: SocketAddr, device_data: &DeviceData) -> Option<Device> {
         let model = &device_data.sysinfo().model;
         if model.contains("EP10") {
             Some(Device::EP10(EP10::new(addr, device_data)))
-        } else if model.contains("HS220")
-            || model.contains("KP405")
-            || model.contains("ES20M")
-        {
+        } else if model.contains("HS220") || model.contains("KP405") || model.contains("ES20M") {
             Some(Device::HS220(HS220::new(addr, device_data)))
         } else {
             warn!("Unknown device {:?}", device_data);

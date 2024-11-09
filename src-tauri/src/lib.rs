@@ -1,6 +1,7 @@
 use log::LevelFilter;
-use network_interface::{NetworkInterface, NetworkInterfaceConfig};
+use network_interface::{Addr, NetworkInterface, NetworkInterfaceConfig, V4IfAddr};
 mod discovery;
+use tplink::discover::DiscoverConfig;
 mod tplink;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -10,18 +11,36 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn get_devices() -> String {
-    format!("Hello! You've been greeted from Rust!")
+fn get_config(state: tauri::State<'_, State>) -> DiscoverConfig {
+    state.discover_config
+}
+
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+struct State {
+    discover_config: DiscoverConfig,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let netif = NetworkInterface::show()
-        .map(|interfaces| interfaces.into_iter().find(|netif| netif.name == "en0"))
+        .ok()
+        .and_then(|interfaces| interfaces.into_iter().find(|netif| netif.name == "en0"))
         .expect("No network interface named en0 found");
 
-    println!("{:#?}", netif);
+    let ip = netif
+        .addr
+        .into_iter()
+        .find_map(|addr| match addr {
+            Addr::V4(V4IfAddr {
+                ip,
+                broadcast: Some(_),
+                netmask: _,
+            }) => Some(ip),
+            _ => None,
+        })
+        .expect("No IP address found");
 
+    let discover_config = DiscoverConfig::from_ip(ip);
     tauri::Builder::default()
         .plugin(
             tauri_plugin_log::Builder::new()
@@ -29,7 +48,8 @@ pub fn run() {
                 .build(),
         )
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .manage(State { discover_config })
+        .invoke_handler(tauri::generate_handler![greet, get_config])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

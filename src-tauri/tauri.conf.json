@@ -5,6 +5,11 @@
       "csp": null
     },
     "windows": [
+      {
+        "height": 400,
+        "width": 400,
+        "title": "overhead"
+      }
     ]
   },
   "build": {

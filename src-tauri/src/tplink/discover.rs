@@ -10,7 +10,7 @@ use std::{
     time::Duration,
 };
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct DiscoverConfig {
     pub listen_timeout: Duration,
     /// The IP address of the ESP32
@@ -35,10 +35,8 @@ impl DiscoverConfig {
 
 /// The address that we send discovery packets to.
 /// I have no reason to believe this'll ever be anything different.
-const BROADCAST_ADDR: SocketAddr = SocketAddr::new(
-    std::net::IpAddr::V4(Ipv4Addr::new(192, 168, 1, 255)),
-    9999,
-);
+const BROADCAST_ADDR: SocketAddr =
+    SocketAddr::new(std::net::IpAddr::V4(Ipv4Addr::new(192, 168, 1, 255)), 9999);
 
 // "schedule": {"get_next_action": {}},
 // "cnCloud": {"get_info": {}},
@@ -50,12 +48,9 @@ const QUERY: &str = r#"{
     "smartlife.iot.smartbulb.lightingservice": {"get_light_state": null}
 }"#;
 
-pub fn discover_devices(
-    config: DiscoverConfig,
-) -> TpResult<Vec<(SocketAddr, DeviceData)>> {
+pub fn discover_devices(config: DiscoverConfig) -> TpResult<Vec<(SocketAddr, DeviceData)>> {
     debug!("Begin discovery");
-    let socket_addr =
-        SocketAddr::new(std::net::IpAddr::V4(config.socket_ip), 0);
+    let socket_addr = SocketAddr::new(std::net::IpAddr::V4(config.socket_ip), 0);
     let udp_socket = UdpSocket::bind(socket_addr)?;
     udp_socket.set_broadcast(true)?;
     udp_socket.set_read_timeout(Some(config.listen_timeout))?;
@@ -64,9 +59,7 @@ pub fn discover_devices(
     let mut buf = [0_u8; 4096];
     let mut devices = HashMap::new();
 
-    if let Err(err) =
-        udp_socket.send_to(&request[4..request.len()], BROADCAST_ADDR)
-    {
+    if let Err(err) = udp_socket.send_to(&request[4..request.len()], BROADCAST_ADDR) {
         error!("udp_socket.send_to error {:?}", err);
     }
 
@@ -86,10 +79,7 @@ pub fn discover_devices(
                 debug!("Device discovered at {:?}", addr);
             }
             Err(err) => {
-                error!(
-                    "Device data (address {:?}) parse error {:#?}",
-                    addr, err
-                );
+                error!("Device data (address {:?}) parse error {:#?}", addr, err);
             }
         }
     }

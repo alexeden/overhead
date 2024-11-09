@@ -1,3 +1,4 @@
+#![allow(unused)]
 use super::{
     error::{TpError, TpResult},
     models::{DeviceData, SysInfo},
@@ -68,13 +69,9 @@ pub trait CommonCapabilities: CachedControlParams {
     }
 
     fn set_alias(&self, alias: &str) -> TpResult<()> {
-        let command = json!({ "system": {"set_dev_alias": {"alias": alias}} })
-            .to_string();
+        let command = json!({ "system": {"set_dev_alias": {"alias": alias}} }).to_string();
 
-        validate_response_code(
-            &self.send(&command)?,
-            "/system/set_dev_alias/err_code",
-        )
+        validate_response_code(&self.send(&command)?, "/system/set_dev_alias/err_code")
     }
 
     /// Reboot the device in 1 second
@@ -134,9 +131,7 @@ pub trait CommonCapabilities: CachedControlParams {
 
 pub trait Dimmable: CommonCapabilities {
     fn get_dimmer_parameters(&self) -> TpResult<()> {
-        let command =
-            json!({"smartlife.iot.dimmer":{"get_dimmer_parameters":{}}})
-                .to_string();
+        let command = json!({"smartlife.iot.dimmer":{"get_dimmer_parameters":{}}}).to_string();
 
         validate_response_code(
             &self.send(&command)?,
@@ -145,9 +140,7 @@ pub trait Dimmable: CommonCapabilities {
     }
 
     fn get_default_behavior(&self) -> TpResult<()> {
-        let command =
-            json!({"smartlife.iot.dimmer":{"get_default_behavior":{}}})
-                .to_string();
+        let command = json!({"smartlife.iot.dimmer":{"get_default_behavior":{}}}).to_string();
 
         validate_response_code(
             &self.send(&command)?,
@@ -215,10 +208,7 @@ pub trait Dimmable: CommonCapabilities {
 }
 
 /// Check the error code of a standard command
-fn validate_response_code(
-    value: &serde_json::Value,
-    pointer: &str,
-) -> TpResult<()> {
+fn validate_response_code(value: &serde_json::Value, pointer: &str) -> TpResult<()> {
     if let Some(err_code) = value.pointer(pointer) {
         if err_code == 0 {
             Ok(())

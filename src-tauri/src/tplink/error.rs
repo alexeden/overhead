@@ -1,3 +1,4 @@
+#![allow(unused)]
 //! Error types
 use serde::{Deserialize, Serialize};
 use std::{convert::From, error, fmt, io, result};
@@ -22,15 +23,13 @@ impl fmt::Display for TpError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             TpError::IO(_) => f.write_str("Error connecting to the device"),
-            TpError::Serde(_) => f.write_str(
-                "Could not parse the response received from the device",
-            ),
-            TpError::TPLink(SectionError { err_code, err_msg }) => {
-                f.write_str(&format!(
-                    "Response data error: ({:?}) {:?}",
-                    err_code, err_msg,
-                ))
+            TpError::Serde(_) => {
+                f.write_str("Could not parse the response received from the device")
             }
+            TpError::TPLink(SectionError { err_code, err_msg }) => f.write_str(&format!(
+                "Response data error: ({:?}) {:?}",
+                err_code, err_msg,
+            )),
             TpError::Other(err) => f.write_str(&err),
         }
     }
@@ -40,9 +39,7 @@ impl error::Error for TpError {
     fn description(&self) -> &str {
         match self {
             TpError::IO(_) => "Error connecting to the device",
-            TpError::Serde(_) => {
-                "Could not parse the response received from the device"
-            }
+            TpError::Serde(_) => "Could not parse the response received from the device",
             TpError::TPLink(_) => "Response data error",
             TpError::Other(err) => err.as_str(),
         }
