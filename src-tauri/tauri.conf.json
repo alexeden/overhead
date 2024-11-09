@@ -5,10 +5,6 @@
       "csp": null
     },
     "windows": [
-      {
-        "fullscreen": true,
-        "title": "overhead"
-      }
     ]
   },
   "build": {
