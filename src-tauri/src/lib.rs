@@ -1,18 +1,23 @@
-use log::LevelFilter;
-use network_interface::{Addr, NetworkInterface, NetworkInterfaceConfig, V4IfAddr};
+use std::{net::SocketAddr, time::Duration};
+use tauri::Manager;
 mod discovery;
-use tplink::discover::DiscoverConfig;
+use tplink::{
+    discover::{discover_devices, DiscoverConfig},
+    models::DeviceData,
+};
+use utils::get_local_ip_addr;
 mod tplink;
-
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
+mod utils;
 
 #[tauri::command]
 fn get_config(state: tauri::State<'_, State>) -> DiscoverConfig {
     state.discover_config
+}
+
+#[tauri::command]
+fn get_devices(state: tauri::State<'_, State>) -> Vec<(SocketAddr, DeviceData)> {
+    let devices = discover_devices(state.discover_config);
+    devices.unwrap()
 }
 
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -22,34 +27,24 @@ struct State {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let netif = NetworkInterface::show()
-        .ok()
-        .and_then(|interfaces| interfaces.into_iter().find(|netif| netif.name == "en0"))
-        .expect("No network interface named en0 found");
-
-    let ip = netif
-        .addr
-        .into_iter()
-        .find_map(|addr| match addr {
-            Addr::V4(V4IfAddr {
-                ip,
-                broadcast: Some(_),
-                netmask: _,
-            }) => Some(ip),
-            _ => None,
-        })
-        .expect("No IP address found");
-
-    let discover_config = DiscoverConfig::from_ip(ip);
     tauri::Builder::default()
         .plugin(
             tauri_plugin_log::Builder::new()
-                .level(LevelFilter::Info)
+                .level(log::LevelFilter::Info)
+                .level_for("tplink::protocol", log::LevelFilter::Debug)
                 .build(),
         )
         .plugin(tauri_plugin_shell::init())
-        .manage(State { discover_config })
-        .invoke_handler(tauri::generate_handler![greet, get_config])
+        .invoke_handler(tauri::generate_handler![get_config, get_devices])
+        .setup(|app| {
+            let ip = get_local_ip_addr("en0").expect("Failed to get local IP address from en0");
+
+            app.manage(State {
+                discover_config: DiscoverConfig::from_ip(ip)
+                    .set_listen_timeout(Duration::from_secs(5)),
+            });
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
