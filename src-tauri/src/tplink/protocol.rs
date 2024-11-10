@@ -61,9 +61,7 @@ pub fn send(ip: SocketAddr, msg: &str) -> Result<String, TpError> {
             }
             resp.extend_from_slice(&buffer[0..read]);
             let lval: u32 = length.unwrap();
-            if lval > 0 && resp.len() >= (lval + 4).try_into().unwrap()
-                || read == 0
-            {
+            if lval > 0 && resp.len() >= (lval + 4).try_into().unwrap() || read == 0 {
                 break;
             }
         }

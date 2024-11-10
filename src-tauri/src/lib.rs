@@ -1,5 +1,9 @@
 use std::{net::SocketAddr, time::Duration};
-use tauri::Manager;
+use tauri::{
+    menu::{Menu, MenuItem},
+    tray::TrayIconBuilder,
+    Manager,
+};
 mod discovery;
 use tplink::{
     discover::{discover_devices, DiscoverConfig},
@@ -28,10 +32,11 @@ struct State {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(
             tauri_plugin_log::Builder::new()
+                .level_for("tplink", log::LevelFilter::Debug)
                 .level(log::LevelFilter::Info)
-                .level_for("tplink::protocol", log::LevelFilter::Debug)
                 .build(),
         )
         .plugin(tauri_plugin_shell::init())
@@ -43,6 +48,15 @@ pub fn run() {
                 discover_config: DiscoverConfig::from_ip(ip)
                     .set_listen_timeout(Duration::from_secs(5)),
             });
+
+            let quit_i = MenuItem::with_id(app, "quit", "Oh Fuck", true, None::<&str>)?;
+            let menu = Menu::with_items(app, &[&quit_i])?;
+            let tray = TrayIconBuilder::new()
+                .icon(app.default_window_icon().unwrap().clone())
+                .menu(&menu)
+                .menu_on_left_click(true)
+                .build(app)?;
+
             Ok(())
         })
         .run(tauri::generate_context!())

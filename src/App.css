@@ -10,3 +10,12 @@ body {
   overflow: auto;
   position: relative;
 }
+
+pre {
+  max-height: 400px;
+  overflow: auto;
+  background: #00000022;
+  padding: 0.5rem;
+  font-family: 'Input Mono', 'Courier New', Courier, monospace;
+  font-size: 11px;
+}

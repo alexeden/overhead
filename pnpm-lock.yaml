@@ -14,6 +14,9 @@ importers:
       '@tauri-apps/plugin-shell':
         specifier: ^2
         version: 2.0.1
+      '@tauri-apps/plugin-store':
+        specifier: ~2
+        version: 2.1.0
       solid-js:
         specifier: ^1.7.8
         version: 1.9.3
@@ -22,7 +25,7 @@ importers:
         specifier: ^2
         version: 2.0.4
       autoprefixer:
-        specifier: ^10.4.20
+        specifier: ^10.4
         version: 10.4.20(postcss@8.4.47)
       postcss:
         specifier: ^8.4
@@ -466,6 +469,9 @@ packages:
 
   '@tauri-apps/plugin-shell@2.0.1':
     resolution: {integrity: sha512-akU1b77sw3qHiynrK0s930y8zKmcdrSD60htjH+mFZqv5WaakZA/XxHR3/sF1nNv9Mgmt/Shls37HwnOr00aSw==}
+
+  '@tauri-apps/plugin-store@2.1.0':
+    resolution: {integrity: sha512-GADqrc17opUKYIAKnGHIUgEeTZ2wJGu1ZITKQ1WMuOFdv8fvXRFBAqsqPjE3opgWohbczX6e1NpwmZK1AnuWVw==}
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -1393,6 +1399,10 @@ snapshots:
       '@tauri-apps/cli-win32-x64-msvc': 2.0.4
 
   '@tauri-apps/plugin-shell@2.0.1':
+    dependencies:
+      '@tauri-apps/api': 2.0.3
+
+  '@tauri-apps/plugin-store@2.1.0':
     dependencies:
       '@tauri-apps/api': 2.0.3
 
