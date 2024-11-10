@@ -2,7 +2,7 @@ import { Config } from 'tailwindcss';
 
 export default {
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
-  plugins: [],
+  plugins: [require('@tailwindcss/typography')],
   theme: {
     extend: {},
     // borderRadius: tokens.borderRadius,

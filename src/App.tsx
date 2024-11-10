@@ -1,33 +1,60 @@
-import { createResource, For, Show, Suspense } from 'solid-js';
-// import logo from './assets/logo.svg';
+import { createResource, createSignal, For, Show, Suspense } from 'solid-js';
 import { invoke } from '@tauri-apps/api/core';
 import './App.css';
 
 function App() {
   const [config] = createResource<object>(() => invoke('get_config'));
-
-  const [devices, { refetch }] = createResource<Array<[string, object]>>(() =>
+  const [error, setError] = createSignal<string | null>(null);
+  const [loading] = createSignal<boolean>();
+  const [devices, { refetch }] = createResource<Array<[string, any]>>(() =>
     invoke('get_devices')
   );
 
   return (
-    <main class="flex flex-col gap-4 p-4 items-start">
+    <main class="prose flex flex-col gap-2 p-4 items-start">
+      <h1 class="prose-2xl mb-0 leading-none text-[3rem] prose-h1">
+        🔆 Overhead
+      </h1>
       <Suspense fallback={<p>Loading config...</p>}>
         <h2>Config</h2>
         <pre>{JSON.stringify(config(), null, 2)}</pre>
-        <h2>Devices</h2>
+        <Show when={error()}>
+          <pre class="text-red-500">{JSON.stringify(error(), null, 2)}</pre>
+        </Show>
+        <Show when={loading()}>
+          <div class="flex flex-row justify-between">
+            <p>Doing something...</p>
+          </div>
+        </Show>
+        <div class="flex flex-row justify-between self-stretch items-center py-2">
+          <h2 class="leading-none p-0 m-0">Devices</h2>
+          <button onClick={() => refetch()}>Refresh</button>
+        </div>
         <Suspense fallback={<p>Loading devices...</p>}>
           <For each={devices()}>
             {([socketAddr, device]) => (
-              <div class="flex flex-row gap-2">
-                <label>
-                  <code>{socketAddr}</code>
-                </label>
+              <div class="flex flex-col gap-2">
+                <div class="flex flex-row justify-between items-center">
+                  <div class="flex flex-col gap-1">
+                    <label>{device.system.get_sysinfo.alias}</label>
+                    <small>{socketAddr}</small>
+                  </div>
+                  <button
+                    class="bg-yellow-500 p-2 prose-h4"
+                    onClick={async () =>
+                      await invoke('device_command', {
+                        device,
+                        socketAddr,
+                      }).catch(err => setError(err))
+                    }
+                  >
+                    Toggle
+                  </button>
+                </div>
                 <pre>{JSON.stringify(device, null, 2)}</pre>
               </div>
             )}
           </For>
-          <button onClick={() => refetch()}>Refresh</button>
         </Suspense>
       </Suspense>
     </main>

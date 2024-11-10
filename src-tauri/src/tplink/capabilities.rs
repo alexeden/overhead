@@ -1,7 +1,7 @@
 #![allow(unused)]
 use super::{
     error::{TpError, TpResult},
-    models::{DeviceData, SysInfo},
+    models::{DeviceResponse, SysInfo},
     protocol::validate_response_code,
 };
 use log::*;
@@ -9,7 +9,7 @@ use serde::de::DeserializeOwned;
 use serde_json::json;
 use std::time::Duration;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, serde::Serialize, serde::Deserialize, Clone, Debug)]
 pub struct ControlParams {
     pub brightness: u8,
     pub is_on: bool,
@@ -55,7 +55,7 @@ pub trait CommonCapabilities: CachedControlParams {
     /// Get system information
     fn get_sysinfo(&mut self) -> TpResult<SysInfo> {
         Ok(self
-            .send::<DeviceData>(r#"{"system":{"get_sysinfo":null}}"#)?
+            .send::<DeviceResponse>(r#"{"system":{"get_sysinfo":null}}"#)?
             .system
             .sysinfo)
         .map(|sysinfo| {

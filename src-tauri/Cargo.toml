@@ -9,6 +9,9 @@ edition = "2021"
 name = "overhead_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+[profile.dev]
+incremental = true # Compile your binary in smaller steps.
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
@@ -18,7 +21,7 @@ log = { version = "0.4", default-features = false }
 network-interface = "2.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tauri = { version = "2", features = [ "tray-icon"] }
+tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-log = "2"
 tauri-plugin-shell = "2"
 tauri-plugin-store = "2"

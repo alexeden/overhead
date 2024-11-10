@@ -66,7 +66,7 @@ impl Discovery {
                             "Creating device from data {:?}: {}",
                             addr, data.system.sysinfo.alias
                         );
-                        Device::from_data(addr, &data)
+                        Device::from_response(addr, &data)
                     })
                     .collect::<Vec<Device>>();
 

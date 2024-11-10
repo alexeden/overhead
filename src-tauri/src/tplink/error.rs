@@ -7,12 +7,12 @@ use std::{convert::From, error, fmt, io, result};
 pub type TpResult<T> = result::Result<T, TpError>;
 
 /// Error type for TPLinker
-#[derive(Debug)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub enum TpError {
     /// Wrapped errors from std::io
-    IO(io::Error),
+    IO(String),
     /// Wrapped errors from serde_json
-    Serde(serde_json::Error),
+    Serde(String),
     /// Error decoding a section of the JSON response
     TPLink(SectionError),
     /// A generic error
@@ -48,13 +48,14 @@ impl error::Error for TpError {
 
 impl From<io::Error> for TpError {
     fn from(error: io::Error) -> Self {
-        TpError::IO(error)
+        // error.fmt(f)
+        TpError::IO(format!("{:#?}", error))
     }
 }
 
 impl From<serde_json::Error> for TpError {
     fn from(error: serde_json::Error) -> Self {
-        TpError::Serde(error)
+        TpError::Serde(format!("{:#?}", error))
     }
 }
 

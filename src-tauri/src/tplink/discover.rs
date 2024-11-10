@@ -1,6 +1,6 @@
 use super::{
     error::TpResult,
-    models::DeviceData,
+    models::DeviceResponse,
     protocol::{decrypt, encrypt},
 };
 use log::*;
@@ -48,7 +48,7 @@ const QUERY: &str = r#"{
     "smartlife.iot.smartbulb.lightingservice": {"get_light_state": null}
 }"#;
 
-pub fn discover_devices(config: DiscoverConfig) -> TpResult<Vec<(SocketAddr, DeviceData)>> {
+pub fn discover_devices(config: DiscoverConfig) -> TpResult<Vec<(SocketAddr, DeviceResponse)>> {
     debug!("Begin discovery");
     let socket_addr = SocketAddr::new(std::net::IpAddr::V4(config.socket_ip), 0);
     let udp_socket = UdpSocket::bind(socket_addr)?;
@@ -73,7 +73,7 @@ pub fn discover_devices(config: DiscoverConfig) -> TpResult<Vec<(SocketAddr, Dev
         let data = decrypt(&mut buf[0..size]);
         debug!("Decrypted buffer\n{}", data);
 
-        match serde_json::from_str::<DeviceData>(&data) {
+        match serde_json::from_str::<DeviceResponse>(&data) {
             Ok(device_data) => {
                 devices.insert(addr, device_data);
                 debug!("Device discovered at {:?}", addr);

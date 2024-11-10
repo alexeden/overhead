@@ -3,11 +3,11 @@ use serde::{Deserialize, Serialize};
 type ErrCode = i16;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct DeviceData {
+pub struct DeviceResponse {
     pub system: System,
 }
 
-impl DeviceData {
+impl DeviceResponse {
     pub fn sysinfo(&self) -> &SysInfo {
         &self.system.sysinfo
     }

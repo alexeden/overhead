@@ -1,4 +1,3 @@
-use log::*;
 use std::{net::SocketAddr, time::Duration};
 use tauri::{
     menu::{Menu, MenuItem},
@@ -8,8 +7,11 @@ use tauri::{
 mod discovery;
 use tauri_plugin_store::StoreExt;
 use tplink::{
+    devices::Device,
     discover::{discover_devices, DiscoverConfig},
-    models::DeviceData,
+    error::TpResult,
+    models::DeviceResponse,
+    prelude::*,
 };
 use utils::get_local_ip_addr;
 mod tplink;
@@ -21,16 +23,15 @@ fn get_config(state: tauri::State<'_, State>) -> DiscoverConfig {
 }
 
 #[tauri::command]
-fn get_devices(state: tauri::State<'_, State>) -> Vec<(SocketAddr, DeviceData)> {
+fn get_devices(state: tauri::State<'_, State>) -> Vec<(SocketAddr, DeviceResponse)> {
     let devices = discover_devices(state.discover_config);
     devices.unwrap()
 }
 
 #[tauri::command]
-fn device_command(device_data: DeviceData, state: tauri::State<'_, State>) -> () {
-    info!("Device command: {:?}", device_data);
-    // let devices = discover_devices(state.discover_config);
-    // devices.unwrap()
+fn device_command(socket_addr: SocketAddr, device: DeviceResponse) -> TpResult<bool> {
+    let mut dev = Device::from_response(socket_addr, &device).ok_or("Device not found")?;
+    dev.toggle()
 }
 
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -59,7 +60,7 @@ pub fn run() {
 
             app.manage(State {
                 discover_config: DiscoverConfig::from_ip(ip)
-                    .set_listen_timeout(Duration::from_secs(5)),
+                    .set_listen_timeout(Duration::from_secs(2)),
             });
 
             // Store

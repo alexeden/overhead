@@ -1,7 +1,7 @@
 use super::{
     capabilities::{CachedControlParams, ControlParams},
     error::TpResult,
-    models::DeviceData,
+    models::DeviceResponse,
     prelude::*,
     protocol::send,
 };
@@ -9,42 +9,19 @@ use log::*;
 use serde::de::DeserializeOwned;
 use std::net::SocketAddr;
 
-// #[derive(Clone, Debug)]
-// pub struct DeviceInfo {
-//     pub addr: SocketAddr,
-//     pub alias: String,
-//     pub mac: String,
-//     pub model: String,
-// }
-
-// impl DeviceInfo {
-//     pub fn new(addr: SocketAddr, data: DeviceData) -> Self {
-//         let sysinfo = data.system.sysinfo;
-
-//         Self {
-//             addr,
-//             alias: sysinfo.alias,
-//             mac: sysinfo.mac,
-//             model: sysinfo.model,
-//         }
-//     }
-// }
-
 macro_rules! new_device {
     ( $model:ident ) => {
         #[derive(Clone, Debug)]
         pub struct $model {
             pub addr: SocketAddr,
             control_params: ControlParams,
-            // info: DeviceInfo,
         }
 
         impl $model {
-            pub fn new(addr: SocketAddr, data: &DeviceData) -> Self {
+            pub fn new(addr: SocketAddr, data: &DeviceResponse) -> Self {
                 Self {
                     addr: addr.clone(),
                     control_params: ControlParams::from_sysinfo(&data.system.sysinfo),
-                    // info: DeviceInfo::new(addr, data.clone()),
                 }
             }
         }
@@ -86,7 +63,7 @@ pub enum Device {
 }
 
 impl Device {
-    pub fn from_data(addr: SocketAddr, device_data: &DeviceData) -> Option<Device> {
+    pub fn from_response(addr: SocketAddr, device_data: &DeviceResponse) -> Option<Device> {
         let model = &device_data.sysinfo().model;
         if model.contains("EP10") {
             Some(Device::EP10(EP10::new(addr, device_data)))
@@ -98,25 +75,10 @@ impl Device {
         }
     }
 
-    // pub(crate) fn info(&self) -> &DeviceInfo {
-    //     match self {
-    //         Device::EP10(d) => &d.info,
-    //         Device::HS220(d) => &d.info,
-    //     }
-    // }
-
     pub fn as_dimmable(&mut self) -> Option<&mut impl Dimmable> {
         match self {
             Device::HS220(d) => Some(d),
             _ => None,
-        }
-    }
-
-    pub fn is_dimmable(&self) -> bool {
-        if let Device::HS220(_) = self {
-            true
-        } else {
-            false
         }
     }
 }

@@ -76,6 +76,7 @@ pub fn send(ip: SocketAddr, msg: &str) -> Result<String, TpError> {
 }
 
 /// Check the error code of a standard command
+/// A "pointer" is a path to a value in the JSON object
 pub(crate) fn validate_response_code(value: &serde_json::Value, pointer: &str) -> TpResult<()> {
     if let Some(err_code) = value.pointer(pointer) {
         if err_code == 0 {
