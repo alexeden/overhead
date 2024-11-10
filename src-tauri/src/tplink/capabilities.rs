@@ -2,6 +2,7 @@
 use super::{
     error::{TpError, TpResult},
     models::{DeviceData, SysInfo},
+    protocol::validate_response_code,
 };
 use log::*;
 use serde::de::DeserializeOwned;
@@ -205,17 +206,4 @@ pub trait Dimmable: CommonCapabilities {
     //         "/smartlife.iot.dimmer/set_switch_state/err_code",
     //     )
     // }
-}
-
-/// Check the error code of a standard command
-fn validate_response_code(value: &serde_json::Value, pointer: &str) -> TpResult<()> {
-    if let Some(err_code) = value.pointer(pointer) {
-        if err_code == 0 {
-            Ok(())
-        } else {
-            Err(TpError::from(format!("Invalid error code {}", err_code)))
-        }
-    } else {
-        Err(TpError::from(format!("Invalid response format: {}", value)))
-    }
 }

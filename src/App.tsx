@@ -6,7 +6,7 @@ import './App.css';
 function App() {
   const [config] = createResource<object>(() => invoke('get_config'));
 
-  const [devices, { refetch }] = createResource<Array<object>>(() =>
+  const [devices, { refetch }] = createResource<Array<[string, object]>>(() =>
     invoke('get_devices')
   );
 
@@ -18,7 +18,14 @@ function App() {
         <h2>Devices</h2>
         <Suspense fallback={<p>Loading devices...</p>}>
           <For each={devices()}>
-            {device => <pre>{JSON.stringify(device, null, 2)}</pre>}
+            {([socketAddr, device]) => (
+              <div class="flex flex-row gap-2">
+                <label>
+                  <code>{socketAddr}</code>
+                </label>
+                <pre>{JSON.stringify(device, null, 2)}</pre>
+              </div>
+            )}
           </For>
           <button onClick={() => refetch()}>Refresh</button>
         </Suspense>

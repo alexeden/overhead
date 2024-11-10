@@ -1,3 +1,4 @@
+use log::*;
 use std::{net::SocketAddr, time::Duration};
 use tauri::{
     menu::{Menu, MenuItem},
@@ -5,6 +6,7 @@ use tauri::{
     Manager,
 };
 mod discovery;
+use tauri_plugin_store::StoreExt;
 use tplink::{
     discover::{discover_devices, DiscoverConfig},
     models::DeviceData,
@@ -24,6 +26,13 @@ fn get_devices(state: tauri::State<'_, State>) -> Vec<(SocketAddr, DeviceData)> 
     devices.unwrap()
 }
 
+#[tauri::command]
+fn device_command(device_data: DeviceData, state: tauri::State<'_, State>) -> () {
+    info!("Device command: {:?}", device_data);
+    // let devices = discover_devices(state.discover_config);
+    // devices.unwrap()
+}
+
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 struct State {
     discover_config: DiscoverConfig,
@@ -40,7 +49,11 @@ pub fn run() {
                 .build(),
         )
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![get_config, get_devices])
+        .invoke_handler(tauri::generate_handler![
+            device_command,
+            get_config,
+            get_devices
+        ])
         .setup(|app| {
             let ip = get_local_ip_addr("en0").expect("Failed to get local IP address from en0");
 
@@ -49,11 +62,22 @@ pub fn run() {
                     .set_listen_timeout(Duration::from_secs(5)),
             });
 
-            let quit_i = MenuItem::with_id(app, "quit", "Oh Fuck", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&quit_i])?;
-            let tray = TrayIconBuilder::new()
+            // Store
+            let _store = app.store("store.json")?;
+
+            // System tray
+            TrayIconBuilder::new()
                 .icon(app.default_window_icon().unwrap().clone())
-                .menu(&menu)
+                .menu(&Menu::with_items(
+                    app,
+                    &[&MenuItem::with_id(
+                        app,
+                        "quit",
+                        "Oh Fuck",
+                        true,
+                        None::<&str>,
+                    )?],
+                )?)
                 .menu_on_left_click(true)
                 .build(app)?;
 

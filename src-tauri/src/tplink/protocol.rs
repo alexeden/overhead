@@ -1,4 +1,4 @@
-use super::error::TpError;
+use super::error::{TpError, TpResult};
 use byteorder::{BigEndian, ByteOrder, WriteBytesExt};
 use log::*;
 use std::{
@@ -72,5 +72,18 @@ pub fn send(ip: SocketAddr, msg: &str) -> Result<String, TpError> {
         let result = decrypt(&mut resp.split_off(4));
         debug!("Decrypted response:\n{}", result);
         Ok(result)
+    }
+}
+
+/// Check the error code of a standard command
+pub(crate) fn validate_response_code(value: &serde_json::Value, pointer: &str) -> TpResult<()> {
+    if let Some(err_code) = value.pointer(pointer) {
+        if err_code == 0 {
+            Ok(())
+        } else {
+            Err(TpError::from(format!("Invalid error code {}", err_code)))
+        }
+    } else {
+        Err(TpError::from(format!("Invalid response format: {}", value)))
     }
 }
