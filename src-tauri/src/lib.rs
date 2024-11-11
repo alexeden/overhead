@@ -9,7 +9,7 @@ use tauri_plugin_store::StoreExt;
 use tplink::{
     devices::Device,
     discover::{discover_devices, DiscoverConfig},
-    error::TpResult,
+    error::{TpError, TpResult},
     models::DeviceResponse,
     prelude::*,
 };
@@ -34,6 +34,15 @@ fn device_command(socket_addr: SocketAddr, device: DeviceResponse) -> TpResult<b
     dev.toggle()
 }
 
+#[tauri::command]
+fn set_brightness(socket_addr: SocketAddr, device: DeviceResponse, brightness: u8) -> TpResult<()> {
+    let mut dev = Device::from_response(socket_addr, &device).ok_or("Device not found")?;
+    dev.as_dimmable()
+        .ok_or(TpError::Other("Not dimmable".to_string()))
+        .and_then(|d| d.set_brightness(brightness))
+    // dev.set_brightness(brightness)
+}
+
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 struct State {
     discover_config: DiscoverConfig,
@@ -53,7 +62,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             device_command,
             get_config,
-            get_devices
+            get_devices,
+            set_brightness
         ])
         .setup(|app| {
             let ip = get_local_ip_addr("en0").expect("Failed to get local IP address from en0");

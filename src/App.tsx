@@ -51,6 +51,22 @@ function App() {
                     Toggle
                   </button>
                 </div>
+                {/* Create a slider compoent */}
+                <input
+                  type="range"
+                  min="0"
+                  step="5"
+                  max="100"
+                  onChange={async e => {
+                    console.log(e.target.value, typeof e.target.value);
+                    await invoke('set_brightness', {
+                      device,
+                      socketAddr,
+                      brightness: +e.target.value,
+                    });
+                  }}
+                  value={device.system.get_sysinfo.brightness}
+                />
                 <pre>{JSON.stringify(device, null, 2)}</pre>
               </div>
             )}
