@@ -42,10 +42,14 @@ const BROADCAST_ADDR: SocketAddr =
 // "cnCloud": {"get_info": {}},
 // "emeter": {"get_realtime": null},
 // "smartlife.iot.common.emeter": {"get_realtime": null},
+// "smartlife.iot.smartbulb.lightingservice": {"get_light_state": null},
+// "smartlife.iot.smartbulb.lightingservice": {"get_default_behavior":""}
+// "smartlife.iot.common.timesetting":{"get_time":{}},
+// "smartlife.iot.dimmer": {"get_default_behavior": null},
+// "smartlife.iot.dimmer": {"get_dimmer_parameters": null},
+// "smartlife.iot.smartbulb.lightingservice": {"get_light_details": null},
 const QUERY: &str = r#"{
-    "system": {"get_sysinfo": null},
-    "smartlife.iot.dimmer": {"get_dimmer_parameters": null},
-    "smartlife.iot.smartbulb.lightingservice": {"get_light_state": null}
+    "system": {"get_sysinfo": null}
 }"#;
 
 pub fn discover_devices(config: DiscoverConfig) -> TpResult<Vec<(SocketAddr, DeviceResponse)>> {
@@ -71,7 +75,7 @@ pub fn discover_devices(config: DiscoverConfig) -> TpResult<Vec<(SocketAddr, Dev
         }
 
         let data = decrypt(&mut buf[0..size]);
-        debug!("Decrypted buffer\n{}", data);
+        info!("\n\nDecrypted buffer\n{}", data);
 
         match serde_json::from_str::<DeviceResponse>(&data) {
             Ok(device_data) => {

@@ -1,5 +1,9 @@
 [
   {
+    "smartlife.iot.common.timesetting": {
+      "err_code": -1,
+      "err_msg": "module not support"
+    },
     "smartlife.iot.dimmer": {
       "get_dimmer_parameters": {
         "bulb_type": 1,
