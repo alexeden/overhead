@@ -16,8 +16,8 @@ function App() {
         🔆 Overhead
       </h1>
       <Suspense fallback={<p>Loading config...</p>}>
-        {/* <h2>Config</h2>
-        <pre>{JSON.stringify(config(), null, 2)}</pre> */}
+        <h2>Config</h2>
+        <pre>{JSON.stringify(config(), null, 2)}</pre>
         <Show when={error()}>
           <pre class="text-red-500">{JSON.stringify(error(), null, 2)}</pre>
         </Show>
