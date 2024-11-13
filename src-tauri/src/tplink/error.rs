@@ -7,7 +7,7 @@ use std::{convert::From, error, fmt, io, result};
 pub type TpResult<T> = result::Result<T, TpError>;
 
 /// Error type for TPLinker
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, specta::Type)]
 pub enum TpError {
     /// Wrapped errors from std::io
     IO(String),
@@ -78,7 +78,7 @@ impl From<SectionError> for TpError {
 }
 
 /// Error response for a section of the JSON response
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, specta::Type)]
 pub struct SectionError {
     /// The error code. Zero if no error.
     pub err_code: Option<i16>,

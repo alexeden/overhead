@@ -10,7 +10,7 @@ use std::{
     time::Duration,
 };
 
-#[derive(Copy, Clone, Debug, serde::Serialize)]
+#[derive(Copy, Clone, Debug, serde::Serialize, specta::Type)]
 pub struct DiscoverConfig {
     pub listen_timeout: Duration,
     /// The IP address of the ESP32

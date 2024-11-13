@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 type ErrCode = i16;
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, specta::Type)]
 pub struct DeviceResponse {
     pub system: System,
 }
@@ -13,13 +13,13 @@ impl DeviceResponse {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, specta::Type)]
 pub struct System {
     #[serde(rename = "get_sysinfo")]
     pub sysinfo: SysInfo,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, specta::Type)]
 pub struct SysInfo {
     pub alias: String,
     pub brightness: Option<u8>,
