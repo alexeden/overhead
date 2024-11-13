@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'FiraMono';
+  src: url('/FiraMono-Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/Montserrat-VariableFont_wght.ttf') format('truetype');
+}
+
+:root {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-family: 'Montserrat', sans-serif;
+}
+
+body {
+  background-color: #f6f6f6;
+  min-height: 100vh;
+  min-width: 100vw;
+  width: 100vw;
+  overflow: auto;
+  position: relative;
+}
+
+pre,
+code,
+.code {
+  background: #00000022;
+  font-family: 'FiraMono', 'Courier New', Courier, monospace;
+  font-size: 12px !important;
+  max-height: 300px;
+  overflow: auto;
+  padding: 0.5rem;
+}

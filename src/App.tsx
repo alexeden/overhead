@@ -1,14 +1,12 @@
 import { createResource, createSignal, For, Show, Suspense } from 'solid-js';
-import { invoke } from '@tauri-apps/api/core';
-import './App.css';
+import { commands } from './bindings';
+import './global.css';
 
 function App() {
-  const [config] = createResource<object>(() => invoke('get_config'));
+  const [config] = createResource(() => commands.getConfig());
   const [error, setError] = createSignal<string | null>(null);
   const [loading] = createSignal<boolean>();
-  const [devices, { refetch }] = createResource<Array<[string, any]>>(() =>
-    invoke('get_devices')
-  );
+  const [devices, { refetch }] = createResource(() => commands.getDevices());
 
   return (
     <main class="prose flex flex-col gap-2 p-4 items-start">
@@ -41,12 +39,7 @@ function App() {
                   </div>
                   <button
                     class="bg-yellow-500 p-2 prose-h4"
-                    onClick={async () =>
-                      await invoke('device_command', {
-                        device,
-                        socketAddr,
-                      }).catch(err => setError(err))
-                    }
+                    onClick={() => commands.deviceCommand(socketAddr, device)}
                   >
                     Toggle
                   </button>
@@ -59,13 +52,14 @@ function App() {
                   max="100"
                   onChange={async e => {
                     console.log(e.target.value, typeof e.target.value);
-                    await invoke('set_brightness', {
-                      device,
+
+                    await commands.setBrightness(
                       socketAddr,
-                      brightness: +e.target.value,
-                    });
+                      device,
+                      +e.target.value
+                    );
                   }}
-                  value={device.system.get_sysinfo.brightness}
+                  value={device.system.get_sysinfo.brightness ?? 0}
                 />
                 <pre>{JSON.stringify(device, null, 2)}</pre>
               </div>

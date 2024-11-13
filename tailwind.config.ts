@@ -1,8 +1,14 @@
 import { Config } from 'tailwindcss';
+import twPlugin from 'tailwindcss/plugin';
+import typography from '@tailwindcss/typography';
+import { type CSSRuleObject } from 'tailwindcss/types/config';
 
 export default {
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
-  plugins: [require('@tailwindcss/typography')],
+  plugins: [
+    typography,
+    // twP
+  ],
   theme: {
     extend: {},
     // borderRadius: tokens.borderRadius,
