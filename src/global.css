@@ -15,16 +15,20 @@
 :root {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  font-family: 'Montserrat', sans-serif;
 }
 
 body {
-  background-color: #f6f6f6;
+  background-color: #f0f1f4;
   min-height: 100vh;
   min-width: 100vw;
   width: 100vw;
   overflow: auto;
   position: relative;
+}
+
+h1 {
+  font-variation-settings: "wght" 200;
+  font-family: 'Montserrat', 'Wingdings';
 }
 
 pre,

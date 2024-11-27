@@ -18,9 +18,6 @@ export const commands = {
       else return { status: 'error', error: e as any };
     }
   },
-  async getConfig(): Promise<DiscoverConfig> {
-    return await TAURI_INVOKE('get_config');
-  },
   async getDevices(): Promise<[string, DeviceResponse][]> {
     return await TAURI_INVOKE('get_devices');
   },
@@ -52,14 +49,6 @@ export const commands = {
 /** user-defined types **/
 
 export type DeviceResponse = { system: System };
-export type DiscoverConfig = {
-  listen_timeout: Duration;
-  /**
-   * The IP address of the ESP32
-   */
-  socket_ip: string;
-};
-export type Duration = { secs: number; nanos: number };
 /**
  * Error response for a section of the JSON response
  */

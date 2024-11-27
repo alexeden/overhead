@@ -10,29 +10,6 @@ use std::{
     time::Duration,
 };
 
-#[derive(Copy, Clone, Debug, serde::Serialize, specta::Type)]
-pub struct DiscoverConfig {
-    pub listen_timeout: Duration,
-    /// The IP address of the ESP32
-    pub socket_ip: Ipv4Addr,
-}
-
-impl DiscoverConfig {
-    pub fn from_ip(socket_ip: Ipv4Addr) -> Self {
-        Self {
-            listen_timeout: Default::default(),
-            socket_ip,
-        }
-    }
-
-    pub fn set_listen_timeout(self, listen_timeout: Duration) -> Self {
-        Self {
-            listen_timeout,
-            ..self
-        }
-    }
-}
-
 /// The address that we send discovery packets to.
 /// I have no reason to believe this'll ever be anything different.
 const BROADCAST_ADDR: SocketAddr =
@@ -48,16 +25,15 @@ const BROADCAST_ADDR: SocketAddr =
 // "smartlife.iot.dimmer": {"get_default_behavior": null},
 // "smartlife.iot.dimmer": {"get_dimmer_parameters": null},
 // "smartlife.iot.smartbulb.lightingservice": {"get_light_details": null},
-const QUERY: &str = r#"{
-    "system": {"get_sysinfo": null}
-}"#;
+const QUERY: &str = r#"{ "system": {"get_sysinfo": null} }"#;
 
-pub fn discover_devices(config: DiscoverConfig) -> TpResult<Vec<(SocketAddr, DeviceResponse)>> {
+pub fn discover_devices() -> TpResult<Vec<(SocketAddr, DeviceResponse)>> {
     debug!("Begin discovery");
-    let socket_addr = SocketAddr::new(std::net::IpAddr::V4(config.socket_ip), 0);
+    // let socket_addr = SocketAddr::new(std::net::IpAddr::V4(config.socket_ip), 0);
+    let socket_addr = SocketAddr::new(std::net::IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0);
     let udp_socket = UdpSocket::bind(socket_addr)?;
     udp_socket.set_broadcast(true)?;
-    udp_socket.set_read_timeout(Some(config.listen_timeout))?;
+    udp_socket.set_read_timeout(Some(Duration::from_secs(2)))?;
 
     let request = encrypt(QUERY).unwrap();
     let mut buf = [0_u8; 4096];
@@ -71,6 +47,7 @@ pub fn discover_devices(config: DiscoverConfig) -> TpResult<Vec<(SocketAddr, Dev
         debug!("Socket recvd {} bytes from {:?}", size, addr);
 
         if devices.contains_key(&addr) {
+            info!("Already have device at {:?}", addr);
             continue;
         }
 

@@ -8,7 +8,7 @@ use std::{
     time::Duration,
 };
 
-pub fn encrypt(plain: &str) -> Result<Vec<u8>, TpError> {
+pub(crate) fn encrypt(plain: &str) -> Result<Vec<u8>, TpError> {
     let len = plain.len();
     let msgbytes = plain.as_bytes();
     let mut cipher = vec![];
@@ -28,7 +28,7 @@ pub fn encrypt(plain: &str) -> Result<Vec<u8>, TpError> {
     Ok(cipher)
 }
 
-pub fn decrypt(cipher: &mut [u8]) -> String {
+pub(crate) fn decrypt(cipher: &mut [u8]) -> String {
     let len = cipher.len();
     let mut key = 0xAB;
     let mut next: u8;
@@ -42,16 +42,15 @@ pub fn decrypt(cipher: &mut [u8]) -> String {
     String::from_utf8_lossy(cipher).into_owned()
 }
 
-pub fn send(ip: SocketAddr, msg: &str) -> Result<String, TpError> {
-    debug!("Sending to IP {:?} this message: {:?}", ip, msg);
+pub fn send(addr: SocketAddr, msg: &str) -> Result<String, TpError> {
+    debug!("Sending to IP {:?} this message: {:?}", addr, msg);
     let payload = encrypt(msg)?;
-    let mut stream = TcpStream::connect(ip)?;
-
+    let mut stream = TcpStream::connect(addr)?;
     stream.set_read_timeout(Some(Duration::new(5, 0)))?;
     stream.write_all(&payload)?;
 
     let mut resp = vec![];
-    let mut buffer: [u8; 4096] = [0; 4096];
+    let mut buffer = [0; 4096];
     let mut length: Option<u32> = None;
 
     loop {
@@ -67,24 +66,20 @@ pub fn send(ip: SocketAddr, msg: &str) -> Result<String, TpError> {
         }
     }
     if resp.len() < 4 {
-        Err(TpError::from("response not big enough to decrypt"))
-    } else {
-        let result = decrypt(&mut resp.split_off(4));
-        debug!("Decrypted response:\n{}", result);
-        Ok(result)
+        return Err(TpError::from("response not big enough to decrypt"));
     }
+
+    let result = decrypt(&mut resp.split_off(4));
+    debug!("Decrypted response:\n{}", result);
+    Ok(result)
 }
 
 /// Check the error code of a standard command
 /// A "pointer" is a path to a value in the JSON object
 pub(crate) fn validate_response_code(value: &serde_json::Value, pointer: &str) -> TpResult<()> {
-    if let Some(err_code) = value.pointer(pointer) {
-        if err_code == 0 {
-            Ok(())
-        } else {
-            Err(TpError::from(format!("Invalid error code {}", err_code)))
-        }
-    } else {
-        Err(TpError::from(format!("Invalid response format: {}", value)))
+    match value.pointer(pointer) {
+        Some(err_code) if err_code == 0 => Ok(()),
+        Some(err_code) => Err(TpError::from(format!("Invalid error code {}", err_code))),
+        None => Err(TpError::from(format!("Invalid response format: {}", value))),
     }
 }
