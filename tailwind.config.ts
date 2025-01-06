@@ -1,7 +1,5 @@
-import { Config } from 'tailwindcss';
-import twPlugin from 'tailwindcss/plugin';
 import typography from '@tailwindcss/typography';
-import { type CSSRuleObject } from 'tailwindcss/types/config';
+import { Config } from 'tailwindcss';
 
 export default {
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
@@ -11,6 +9,20 @@ export default {
   ],
   theme: {
     extend: {},
+    colors: {
+      white: '#fcfcfc',
+      red: {
+        DEFAULT: '#ff0342',
+      },
+      gray: {
+        light: '#6c7a93',
+        DEFAULT: '#3c404e',
+        dark: '#1d1e25',
+      },
+      black: '#1d1e25',
+      primary: '#a6d7e7',
+      secondary: '#f5f5f5',
+    },
     // borderRadius: tokens.borderRadius,
     // boxShadow: tokens.boxShadow,
     // colors: {

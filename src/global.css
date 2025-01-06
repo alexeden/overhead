@@ -14,11 +14,17 @@
 
 :root {
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+  /* text-rendering: optimizeLegibility; */
+}
+
+main {
+  color: theme('colors.white');
+
 }
 
 body {
-  background-color: #f0f1f4;
+  background-color: theme('colors.gray.dark');
+  color: theme('colors.white');
   min-height: 100vh;
   min-width: 100vw;
   width: 100vw;
@@ -27,14 +33,15 @@ body {
 }
 
 h1 {
-  font-variation-settings: "wght" 200;
+  font-variation-settings: 'wght' 200;
   font-family: 'Montserrat', 'Wingdings';
 }
 
 pre,
 code,
 .code {
-  background: #00000022;
+  background: theme('colors.gray.DEFAULT') !important;
+  /* background: white !important; */
   font-family: 'FiraMono', 'Courier New', Courier, monospace;
   font-size: 12px !important;
   max-height: 300px;
