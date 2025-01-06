@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+import { SlPower } from 'react-icons/sl';
 import { commands } from './bindings';
 import './global.css';
 import { Logo } from './Logo';
-import { Button } from '@nextui-org/react';
+import { Button, Slider } from '@nextui-org/react';
 
 type GetDevicesResult = Awaited<ReturnType<typeof commands.getDevices>>;
 
@@ -51,30 +52,55 @@ function App() {
       {devices.map(([socketAddr, device]) => (
         <div
           key={socketAddr}
-          className="flex flex-col gap-2 w-full bg-white-alpha-50 p-4 rounded-xl"
+          className="flex flex-col gap-4 w-full bg-white-alpha-50 p-4 rounded-xl"
         >
           <div className="flex flex-row justify-between items-center w-full">
-            <h4 className=" m-0">{device.system.get_sysinfo.alias}</h4>
+            <h4 className="font-bold font-lg m-0">
+              {device.system.get_sysinfo.alias}
+              {/* {' '}
+              {device.system.get_sysinfo.brightness} */}
+            </h4>
             {/* <div className="flex flex-col gap-1 grow">
             </div> */}
             <Button
-              className=" px-2 py-1 text-sm font-bold rounded-xl"
+              isIconOnly
+              aria-label="Toggle power"
+              variant="faded"
+              className=" px-2 py-1 text-sm  font-bold rounded-xl"
               color="primary"
               onPress={() => commands.deviceCommand(socketAddr, device)}
             >
-              Toggle
+              <SlPower size={48} />
             </Button>
           </div>
-
           {typeof device.system.get_sysinfo.brightness === 'number' && (
-            <input
-              type="range"
-              min="0"
-              step="5"
-              max="100"
-              onChange={e =>
-                commands.setBrightness(socketAddr, device, +e.target.value)
-              }
+            <Slider
+              classNames={{
+                // base: 'max-w-md gap-3',
+                track: ' border-[transparent] ',
+                filler: 'bg-gradient-to-r from-secondary-50 to-primary-500',
+              }}
+              aria-label="Brightness"
+              maxValue={100}
+              minValue={0}
+              // size="lg"
+              // step={5}
+              onChangeEnd={e => {
+                console.log('onChangeEnd', e);
+                commands.setBrightness(socketAddr, device, +e).catch(err => {
+                  console.error(err);
+                  setError(
+                    err instanceof Error
+                      ? err.message
+                      : 'Failed to set brightness'
+                  );
+                });
+              }}
+              renderThumb={props => (
+                <div {...props} className={`${props.className} !h-4 !w-4`}>
+                  {/* <span className="transition-transform bg-gradient-to-br shadow-small from-secondary-100 to-secondary-500 rounded-full w-5 h-5 block group-data-[dragging=true]:scale-80" /> */}
+                </div>
+              )}
               value={device.system.get_sysinfo.brightness ?? 0}
             />
           )}
