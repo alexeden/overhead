@@ -1,6 +1,4 @@
-import { JSX } from 'solid-js/jsx-runtime';
-
-export const Logo = (attrs: JSX.SvgSVGAttributes<SVGSVGElement>) => (
+export const Logo = (attrs: React.HTMLAttributes<SVGSVGElement>) => (
   <svg
     {...attrs}
     viewBox="0 0 24 24"

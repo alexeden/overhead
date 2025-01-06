@@ -1,68 +1,80 @@
-import { createResource, createSignal, For, Show, Suspense } from 'solid-js';
+import { useState, useEffect, Suspense } from 'react';
 import { commands } from './bindings';
 import './global.css';
 import { Logo } from './Logo';
 
+type GetDevicesResult = Awaited<ReturnType<typeof commands.getDevices>>;
+
 function App() {
-  // const [config] = createResource(() => commands.getConfig());
-  const [error] = createSignal<string | null>(null);
-  const [devices, { refetch }] = createResource(() => commands.getDevices());
+  const [error, setError] = useState<string | null>(null);
+  const [devices, setDevices] = useState<GetDevicesResult>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchDevices = async () => {
+    setLoading(true);
+    try {
+      const result = await commands.getDevices();
+      setDevices(
+        result.sort(([, d1], [, d2]) =>
+          d1.system.get_sysinfo.alias.localeCompare(d2.system.get_sysinfo.alias)
+        )
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch devices');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDevices();
+  }, []);
 
   return (
-    <main class="prose flex flex-col gap-2 p-4 items-start text-white">
-      <h1 class="mb-0 leading-none text-[3rem] flex flex-row gap-2 items-center text-primary">
-        <Logo class="h-16" />
+    <main className="prose flex flex-col gap-8 p-4 items-start text-white">
+      <h1 className="mb-0 leading-none text-[3rem] flex flex-row gap-2 items-center text-primary">
+        <Logo className="h-16" />
         overhead
       </h1>
-      {/* <Suspense fallback={<p>Loading config...</p>}> */}
-      {/* <h2>Config</h2>
-        <pre>{JSON.stringify(config(), null, 2)}</pre> */}
-      <Show when={error()}>
-        <pre class="text-red-500">{JSON.stringify(error(), null, 2)}</pre>
-      </Show>
-      <div class="flex flex-row justify-between self-stretch items-center py-2">
-        <button onClick={() => refetch()}>Refresh</button>
-      </div>
-      <Suspense fallback={<p>Loading devices...</p>}>
-        <For each={devices()}>
-          {([socketAddr, device]) => (
-            <div class="flex flex-col gap-2 w-full">
-              <div class="flex flex-row justify-between items-center w-full">
-                <div class="flex flex-col gap-1 grow">
-                  <label class="text-lg">
-                    {device.system.get_sysinfo.alias}
-                  </label>
-                  {/* <small>{socketAddr}</small> */}
-                </div>
-                <button
-                  class="bg-primary text-black px-2 py-1 prose-h5"
-                  onClick={() => commands.deviceCommand(socketAddr, device)}
-                >
-                  Toggle
-                </button>
-              </div>
-              {/* Create a slider compoent */}
-              <Show
-                when={typeof device.system.get_sysinfo.brightness === 'number'}
-              >
-                <input
-                  type="range"
-                  min="0"
-                  step="5"
-                  max="100"
-                  onChange={e =>
-                    commands.setBrightness(socketAddr, device, +e.target.value)
-                  }
-                  value={device.system.get_sysinfo.brightness ?? 0}
-                />
-              </Show>
 
-              {/* <pre>{JSON.stringify(device, null, 2)}</pre> */}
+      {error && (
+        <pre className="text-red-500">{JSON.stringify(error, null, 2)}</pre>
+      )}
+
+      <div className="flex flex-row justify-between self-stretch items-center py-2">
+        <button onClick={fetchDevices}>Refresh</button>
+      </div>
+
+      {loading && <p>Loading devices...</p>}
+
+      {devices.map(([socketAddr, device]) => (
+        <div key={socketAddr} className="flex flex-col gap-2 w-full">
+          <div className="flex flex-row justify-between items-center w-full">
+            <div className="flex flex-col gap-1 grow">
+              <h4 className="text-white">{device.system.get_sysinfo.alias}</h4>
             </div>
+            <button
+              className="bg-primary text-black px-2 py-1"
+              onClick={() => commands.deviceCommand(socketAddr, device)}
+            >
+              Toggle
+            </button>
+          </div>
+
+          {typeof device.system.get_sysinfo.brightness === 'number' && (
+            <input
+              type="range"
+              min="0"
+              step="5"
+              max="100"
+              onChange={e =>
+                commands.setBrightness(socketAddr, device, +e.target.value)
+              }
+              value={device.system.get_sysinfo.brightness ?? 0}
+            />
           )}
-        </For>
-      </Suspense>
-      {/* </Suspense> */}
+        </div>
+      ))}
     </main>
   );
 }

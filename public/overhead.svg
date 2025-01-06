@@ -1,15 +1,15 @@
 <svg
    width="24"
    height="24"
-   viewBox="0 0 24 24"
+   viewBox="-4 -4 32 32"
    fill="none"
    xmlns="http://www.w3.org/2000/svg"
 >
    <rect
-      x="0"
-      y="0"
-      width="24"
-      height="24"
+      x="-4"
+      y="-4"
+      width="32"
+      height="32"
       fill="#1d1e25"
    />
    <circle
