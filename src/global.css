@@ -17,14 +17,7 @@
   /* text-rendering: optimizeLegibility; */
 }
 
-main {
-  color: theme('colors.white');
-
-}
-
 body {
-  background-color: theme('colors.gray.dark');
-  color: theme('colors.white');
   min-height: 100vh;
   min-width: 100vw;
   width: 100vw;
@@ -40,8 +33,6 @@ h1 {
 pre,
 code,
 .code {
-  background: theme('colors.gray.DEFAULT') !important;
-  /* background: white !important; */
   font-family: 'FiraMono', 'Courier New', Courier, monospace;
   font-size: 12px !important;
   max-height: 300px;

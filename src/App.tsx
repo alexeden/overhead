@@ -1,7 +1,8 @@
-import { useState, useEffect, Suspense } from 'react';
+import { useEffect, useState } from 'react';
 import { commands } from './bindings';
 import './global.css';
 import { Logo } from './Logo';
+import { Button } from '@nextui-org/react';
 
 type GetDevicesResult = Awaited<ReturnType<typeof commands.getDevices>>;
 
@@ -31,9 +32,9 @@ function App() {
   }, []);
 
   return (
-    <main className="prose flex flex-col gap-8 p-4 items-start text-white">
-      <h1 className="mb-0 leading-none text-[3rem] flex flex-row gap-2 items-center text-primary">
-        <Logo className="h-16" />
+    <main className="flex flex-col gap-6 p-4 items-start ">
+      <h1 className="mb-0 leading-none text-[3rem] flex flex-row gap-2 items-center ">
+        <Logo className="h-16 text-primary-500" />
         overhead
       </h1>
 
@@ -48,17 +49,21 @@ function App() {
       {loading && <p>Loading devices...</p>}
 
       {devices.map(([socketAddr, device]) => (
-        <div key={socketAddr} className="flex flex-col gap-2 w-full">
+        <div
+          key={socketAddr}
+          className="flex flex-col gap-2 w-full bg-white-alpha-50 p-4 rounded-xl"
+        >
           <div className="flex flex-row justify-between items-center w-full">
-            <div className="flex flex-col gap-1 grow">
-              <h4 className="text-white">{device.system.get_sysinfo.alias}</h4>
-            </div>
-            <button
-              className="bg-primary text-black px-2 py-1"
-              onClick={() => commands.deviceCommand(socketAddr, device)}
+            <h4 className=" m-0">{device.system.get_sysinfo.alias}</h4>
+            {/* <div className="flex flex-col gap-1 grow">
+            </div> */}
+            <Button
+              className=" px-2 py-1 text-sm font-bold rounded-xl"
+              color="primary"
+              onPress={() => commands.deviceCommand(socketAddr, device)}
             >
               Toggle
-            </button>
+            </Button>
           </div>
 
           {typeof device.system.get_sysinfo.brightness === 'number' && (

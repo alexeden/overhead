@@ -1,27 +1,101 @@
-import typography from '@tailwindcss/typography';
+// import typography from '@tailwindcss/typography';
+import { nextui } from '@nextui-org/react';
 import { Config } from 'tailwindcss';
 
+const COLORS = {
+  primary: {
+    '100': '#EFFDFD',
+    '200': '#E0FBFC',
+    '300': '#CDF3F7',
+    '400': '#BDE7F0',
+    '500': '#A6D7E7',
+    '600': '#79AEC6',
+    '700': '#5386A6',
+    '800': '#346085',
+    '900': '#1F446E',
+    DEFAULT: '#A6D7E7',
+  },
+} as const;
+
 export default {
-  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  content: [
+    './src/**/*.{js,jsx,ts,tsx}',
+    './node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}',
+  ],
+  darkMode: 'class',
   plugins: [
-    typography,
-    // twP
+    nextui({
+      themes: {
+        light: {
+          colors: {
+            background: '#fcfcfc',
+            foreground: '#1d1e25',
+            primary: {
+              ...COLORS.primary,
+              foreground: '#1d1e25',
+            },
+          },
+        },
+        dark: {
+          colors: {
+            background: '#1d1e25',
+            foreground: '#fcfcfc',
+            primary: {
+              ...COLORS.primary,
+              foreground: '#1d1e25',
+            },
+          },
+        },
+      },
+    }),
   ],
   theme: {
     extend: {},
     colors: {
-      white: '#fcfcfc',
-      red: {
-        DEFAULT: '#ff0342',
+      // red: {
+      //   DEFAULT: '#ff0342',
+      // },
+      // gray: {
+      //   light: '#6c7a93',
+      //   DEFAULT: '#3c404e',
+      //   dark: '#1d1e25',
+      // },
+      // primary: {
+      //   '100': '#EFFDFD',
+      //   '200': '#E0FBFC',
+      //   '300': '#CDF3F7',
+      //   '400': '#BDE7F0',
+      //   '500': '#A6D7E7',
+      //   '600': '#79AEC6',
+      //   '700': '#5386A6',
+      //   '800': '#346085',
+      //   '900': '#1F446E',
+      // },
+      // secondary: '#f5f5f5',
+      'black-alpha': {
+        50: 'rgba(11, 11, 11, 0.04)',
+        100: 'rgba(11, 11, 11, 0.06)',
+        200: 'rgba(11, 11, 11, 0.08)',
+        300: 'rgba(11, 11, 11, 0.16)',
+        400: 'rgba(11, 11, 11, 0.24)',
+        500: 'rgba(11, 11, 11, 0.36)',
+        600: 'rgba(11, 11, 11, 0.48)',
+        700: 'rgba(11, 11, 11, 0.64)',
+        800: 'rgba(11, 11, 11, 0.80)',
+        900: 'rgba(11, 11, 11, 0.92)',
       },
-      gray: {
-        light: '#6c7a93',
-        DEFAULT: '#3c404e',
-        dark: '#1d1e25',
+      'white-alpha': {
+        50: 'rgba(255, 255, 255, 0.04)',
+        100: 'rgba(255, 255, 255, 0.06)',
+        200: 'rgba(255, 255, 255, 0.08)',
+        300: 'rgba(255, 255, 255, 0.16)',
+        400: 'rgba(255, 255, 255, 0.24)',
+        500: 'rgba(255, 255, 255, 0.36)',
+        600: 'rgba(255, 255, 255, 0.48)',
+        700: 'rgba(255, 255, 255, 0.64)',
+        800: 'rgba(255, 255, 255, 0.80)',
+        900: 'rgba(255, 255, 255, 0.92)',
       },
-      black: '#1d1e25',
-      primary: '#a6d7e7',
-      secondary: '#f5f5f5',
     },
     // borderRadius: tokens.borderRadius,
     // boxShadow: tokens.boxShadow,
