@@ -52,9 +52,9 @@ impl SysInfo {
             .unwrap_or(if self.is_on() { 100 } else { 0 })
     }
 
-    pub fn brightness_f32(&self) -> f32 {
-        (self.brightness() as f32) / 100.
-    }
+    // pub fn brightness_f32(&self) -> f32 {
+    //     (self.brightness() as f32) / 100.
+    // }
 
     pub fn is_on(&self) -> bool {
         self.relay_state

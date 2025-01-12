@@ -4,6 +4,19 @@
 /** user-defined commands **/
 
 export const commands = {
+  async discover(
+    onEvent: TAURI_CHANNEL<DiscoverEvent>
+  ): Promise<Result<null, TpError>> {
+    try {
+      return {
+        status: 'ok',
+        data: await TAURI_INVOKE('discover', { onEvent }),
+      };
+    } catch (e) {
+      if (e instanceof Error) throw e;
+      else return { status: 'error', error: e as any };
+    }
+  },
   async deviceCommand(
     socketAddr: string,
     device: DeviceResponse
@@ -25,7 +38,7 @@ export const commands = {
     socketAddr: string,
     device: DeviceResponse,
     brightness: number
-  ): Promise<Result<null, TpError>> {
+  ): Promise<Result<SysInfo, TpError>> {
     try {
       return {
         status: 'ok',
@@ -49,6 +62,11 @@ export const commands = {
 /** user-defined types **/
 
 export type DeviceResponse = { system: System };
+export type DiscoverEvent =
+  | 'Start'
+  | { Progress: number }
+  | 'End'
+  | { Error: string };
 /**
  * Error response for a section of the JSON response
  */
