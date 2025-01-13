@@ -9,9 +9,11 @@ mod tplink;
 
 #[tauri::command]
 #[specta::specta]
-fn discover(on_event: Channel<DiscoverEvent>) -> AppResult<()> {
+async fn discover(on_event: Channel<DiscoverEvent>) -> AppResult<()> {
     on_event.send(DiscoverEvent::Start).unwrap();
     // Wait for 5 seconds
+    std::thread::sleep(std::time::Duration::from_secs(5));
+
     std::thread::spawn(move || {
         std::thread::sleep(std::time::Duration::from_secs(5));
         on_event.send(DiscoverEvent::End).unwrap();
@@ -23,6 +25,8 @@ fn discover(on_event: Channel<DiscoverEvent>) -> AppResult<()> {
 #[specta::specta]
 fn get_devices(state: State<'_, Mutex<AppState>>) -> AppResult<Vec<Device>> {
     let mut state = state.lock().unwrap();
+
+    std::thread::sleep(std::time::Duration::from_secs(5));
 
     discover_devices()
         .map(|resps| {

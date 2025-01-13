@@ -6,7 +6,7 @@
 export const commands = {
   async discover(
     onEvent: TAURI_CHANNEL<DiscoverEvent>
-  ): Promise<Result<null, TpError>> {
+  ): Promise<Result<null, AppError>> {
     try {
       return {
         status: 'ok',
@@ -17,36 +17,33 @@ export const commands = {
       else return { status: 'error', error: e as any };
     }
   },
-  async deviceCommand(
-    socketAddr: string,
-    device: DeviceResponse
-  ): Promise<Result<boolean, TpError>> {
+  async toggle(socketAddr: string): Promise<Result<boolean, AppError>> {
     try {
       return {
         status: 'ok',
-        data: await TAURI_INVOKE('device_command', { socketAddr, device }),
+        data: await TAURI_INVOKE('toggle', { socketAddr }),
       };
     } catch (e) {
       if (e instanceof Error) throw e;
       else return { status: 'error', error: e as any };
     }
   },
-  async getDevices(): Promise<[string, DeviceResponse][]> {
-    return await TAURI_INVOKE('get_devices');
+  async getDevices(): Promise<Result<Device[], AppError>> {
+    try {
+      return { status: 'ok', data: await TAURI_INVOKE('get_devices') };
+    } catch (e) {
+      if (e instanceof Error) throw e;
+      else return { status: 'error', error: e as any };
+    }
   },
   async setBrightness(
     socketAddr: string,
-    device: DeviceResponse,
     brightness: number
-  ): Promise<Result<SysInfo, TpError>> {
+  ): Promise<Result<null, AppError>> {
     try {
       return {
         status: 'ok',
-        data: await TAURI_INVOKE('set_brightness', {
-          socketAddr,
-          device,
-          brightness,
-        }),
+        data: await TAURI_INVOKE('set_brightness', { socketAddr, brightness }),
       };
     } catch (e) {
       if (e instanceof Error) throw e;
@@ -61,12 +58,24 @@ export const commands = {
 
 /** user-defined types **/
 
-export type DeviceResponse = { system: System };
-export type DiscoverEvent =
-  | 'Start'
-  | { Progress: number }
-  | 'End'
-  | { Error: string };
+export type AppError =
+  /**
+   * Tried to send a command to a device that was never discovered
+   */
+  | { NotFound: string }
+  /**
+   * TPLinker error
+   */
+  | { Tp: TpError };
+export type Device = {
+  addr: string;
+  id: string;
+  model: string;
+  name: string;
+  brightness: number | null;
+  isOn: boolean;
+};
+export type DiscoverEvent = 'Start' | 'End';
 /**
  * Error response for a section of the JSON response
  */
@@ -80,25 +89,6 @@ export type SectionError = {
    */
   err_msg: string | null;
 };
-export type SysInfo = {
-  alias: string;
-  brightness: number | null;
-  deviceId: string;
-  err_code: number;
-  hwId: string;
-  hw_type: string;
-  hw_ver: string;
-  latitude_i: number | null;
-  longitude_i: number | null;
-  mac: string;
-  model: string;
-  on_time: number | null;
-  relay_state: number | null;
-  rssi: number;
-  sw_ver: string;
-  updating: number | null;
-};
-export type System = { get_sysinfo: SysInfo };
 /**
  * Error type for TPLinker
  */
@@ -116,9 +106,17 @@ export type TpError =
    */
   | { TPLink: SectionError }
   /**
+   * Unknown device model
+   */
+  | { UnknownModel: string }
+  /**
+   * Tried to use a feature that is not supported by the device
+   */
+  | { Unsupported: string }
+  /**
    * A generic error
    */
-  | { Other: string };
+  | { Unknown: string };
 
 /** tauri-specta globals **/
 
