@@ -4,33 +4,9 @@
 /** user-defined commands **/
 
 export const commands = {
-  async discover(
-    onEvent: TAURI_CHANNEL<DiscoverEvent>
-  ): Promise<Result<null, AppError>> {
+  async discover(): Promise<Result<Device[], AppError>> {
     try {
-      return {
-        status: 'ok',
-        data: await TAURI_INVOKE('discover', { onEvent }),
-      };
-    } catch (e) {
-      if (e instanceof Error) throw e;
-      else return { status: 'error', error: e as any };
-    }
-  },
-  async toggle(socketAddr: string): Promise<Result<boolean, AppError>> {
-    try {
-      return {
-        status: 'ok',
-        data: await TAURI_INVOKE('toggle', { socketAddr }),
-      };
-    } catch (e) {
-      if (e instanceof Error) throw e;
-      else return { status: 'error', error: e as any };
-    }
-  },
-  async getDevices(): Promise<Result<Device[], AppError>> {
-    try {
-      return { status: 'ok', data: await TAURI_INVOKE('get_devices') };
+      return { status: 'ok', data: await TAURI_INVOKE('discover') };
     } catch (e) {
       if (e instanceof Error) throw e;
       else return { status: 'error', error: e as any };
@@ -44,6 +20,17 @@ export const commands = {
       return {
         status: 'ok',
         data: await TAURI_INVOKE('set_brightness', { socketAddr, brightness }),
+      };
+    } catch (e) {
+      if (e instanceof Error) throw e;
+      else return { status: 'error', error: e as any };
+    }
+  },
+  async toggle(socketAddr: string): Promise<Result<boolean, AppError>> {
+    try {
+      return {
+        status: 'ok',
+        data: await TAURI_INVOKE('toggle', { socketAddr }),
       };
     } catch (e) {
       if (e instanceof Error) throw e;
@@ -75,7 +62,6 @@ export type Device = {
   brightness: number | null;
   isOn: boolean;
 };
-export type DiscoverEvent = 'Start' | 'End';
 /**
  * Error response for a section of the JSON response
  */

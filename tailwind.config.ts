@@ -13,7 +13,33 @@ const COLORS = {
     '700': '#5386A6',
     '800': '#346085',
     '900': '#1F446E',
+    '950': '#122E52',
+    '975': '#0A1E3C',
     DEFAULT: '#A6D7E7',
+  },
+  'black-alpha': {
+    50: 'rgba(11, 11, 11, 0.04)',
+    100: 'rgba(11, 11, 11, 0.06)',
+    200: 'rgba(11, 11, 11, 0.08)',
+    300: 'rgba(11, 11, 11, 0.16)',
+    400: 'rgba(11, 11, 11, 0.24)',
+    500: 'rgba(11, 11, 11, 0.36)',
+    600: 'rgba(11, 11, 11, 0.48)',
+    700: 'rgba(11, 11, 11, 0.64)',
+    800: 'rgba(11, 11, 11, 0.80)',
+    900: 'rgba(11, 11, 11, 0.92)',
+  },
+  'white-alpha': {
+    50: 'rgba(255, 255, 255, 0.04)',
+    100: 'rgba(255, 255, 255, 0.06)',
+    200: 'rgba(255, 255, 255, 0.08)',
+    300: 'rgba(255, 255, 255, 0.16)',
+    400: 'rgba(255, 255, 255, 0.24)',
+    500: 'rgba(255, 255, 255, 0.36)',
+    600: 'rgba(255, 255, 255, 0.48)',
+    700: 'rgba(255, 255, 255, 0.64)',
+    800: 'rgba(255, 255, 255, 0.80)',
+    900: 'rgba(255, 255, 255, 0.92)',
   },
 } as const;
 
@@ -25,11 +51,14 @@ export default {
   darkMode: 'class',
   plugins: [
     nextui({
+      addCommonColors: true,
       themes: {
         light: {
           colors: {
             background: '#fcfcfc',
             foreground: '#1d1e25',
+            // @ts-expect-error alpha is not a valid color
+            alpha: COLORS['black-alpha'],
             primary: {
               ...COLORS.primary,
               foreground: '#1d1e25',
@@ -40,9 +69,12 @@ export default {
           colors: {
             background: '#1d1e25',
             foreground: '#fcfcfc',
+            // @ts-expect-error alpha is not a valid color
+            alpha: COLORS['white-alpha'],
             primary: {
               ...COLORS.primary,
               foreground: '#1d1e25',
+              // background: '#1d1e25',
             },
           },
         },
@@ -72,30 +104,6 @@ export default {
       //   '900': '#1F446E',
       // },
       // secondary: '#f5f5f5',
-      'black-alpha': {
-        50: 'rgba(11, 11, 11, 0.04)',
-        100: 'rgba(11, 11, 11, 0.06)',
-        200: 'rgba(11, 11, 11, 0.08)',
-        300: 'rgba(11, 11, 11, 0.16)',
-        400: 'rgba(11, 11, 11, 0.24)',
-        500: 'rgba(11, 11, 11, 0.36)',
-        600: 'rgba(11, 11, 11, 0.48)',
-        700: 'rgba(11, 11, 11, 0.64)',
-        800: 'rgba(11, 11, 11, 0.80)',
-        900: 'rgba(11, 11, 11, 0.92)',
-      },
-      'white-alpha': {
-        50: 'rgba(255, 255, 255, 0.04)',
-        100: 'rgba(255, 255, 255, 0.06)',
-        200: 'rgba(255, 255, 255, 0.08)',
-        300: 'rgba(255, 255, 255, 0.16)',
-        400: 'rgba(255, 255, 255, 0.24)',
-        500: 'rgba(255, 255, 255, 0.36)',
-        600: 'rgba(255, 255, 255, 0.48)',
-        700: 'rgba(255, 255, 255, 0.64)',
-        800: 'rgba(255, 255, 255, 0.80)',
-        900: 'rgba(255, 255, 255, 0.92)',
-      },
     },
     // borderRadius: tokens.borderRadius,
     // boxShadow: tokens.boxShadow,

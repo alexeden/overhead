@@ -33,7 +33,7 @@ pub fn discover_devices() -> TpResult<Vec<(SocketAddr, DeviceResponse)>> {
     let socket_addr = SocketAddr::new(std::net::IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0);
     let udp_socket = UdpSocket::bind(socket_addr)?;
     udp_socket.set_broadcast(true)?;
-    udp_socket.set_read_timeout(Some(Duration::from_secs(2)))?;
+    udp_socket.set_read_timeout(Some(Duration::from_secs(1)))?;
 
     let request = encrypt(QUERY).unwrap();
     let mut buf = [0_u8; 4096];

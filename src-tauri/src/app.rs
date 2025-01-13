@@ -33,13 +33,13 @@ impl From<TpError> for AppError {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Eq, specta::Type)]
-pub enum DiscoverEvent {
-    Start,
-    // Progress(u64),
-    End,
-    // Error(String),
-}
+// #[derive(Debug, Clone, PartialEq, Serialize, Eq, specta::Type)]
+// pub enum DiscoverEvent {
+//     Start,
+//     // Progress(u64),
+//     End,
+//     // Error(String),
+// }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Eq, specta::Type)]
 #[serde(rename_all = "camelCase")]

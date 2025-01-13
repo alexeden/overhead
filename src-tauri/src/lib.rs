@@ -1,32 +1,16 @@
 use crate::tplink::{devices::Device as TpLinkDevice, discover::discover_devices, prelude::*};
-use app::{AppResult, AppState, Device, DiscoverEvent};
+use app::{AppResult, AppState, Device};
 use specta_typescript::Typescript;
 use std::{net::SocketAddr, sync::Mutex};
-use tauri::{ipc::Channel, Manager, State};
+use tauri::{Manager, State};
 use tauri_plugin_store::StoreExt;
 mod app;
 mod tplink;
 
 #[tauri::command]
 #[specta::specta]
-async fn discover(on_event: Channel<DiscoverEvent>) -> AppResult<()> {
-    on_event.send(DiscoverEvent::Start).unwrap();
-    // Wait for 5 seconds
-    std::thread::sleep(std::time::Duration::from_secs(5));
-
-    std::thread::spawn(move || {
-        std::thread::sleep(std::time::Duration::from_secs(5));
-        on_event.send(DiscoverEvent::End).unwrap();
-    });
-    Ok(())
-}
-
-#[tauri::command]
-#[specta::specta]
-fn get_devices(state: State<'_, Mutex<AppState>>) -> AppResult<Vec<Device>> {
+async fn discover(state: State<'_, Mutex<AppState>>) -> AppResult<Vec<Device>> {
     let mut state = state.lock().unwrap();
-
-    std::thread::sleep(std::time::Duration::from_secs(5));
 
     discover_devices()
         .map(|resps| {
@@ -39,16 +23,6 @@ fn get_devices(state: State<'_, Mutex<AppState>>) -> AppResult<Vec<Device>> {
                 })
                 .collect()
         })
-        .map_err(|err| err.into())
-}
-
-#[tauri::command]
-#[specta::specta]
-fn toggle(socket_addr: SocketAddr, state: State<'_, Mutex<AppState>>) -> AppResult<bool> {
-    let state = state.lock().unwrap();
-    let model = state.get_model(socket_addr)?;
-    TpLinkDevice::try_new(socket_addr, &model)?
-        .toggle()
         .map_err(|err| err.into())
 }
 
@@ -68,14 +42,23 @@ fn set_brightness(
         .map_err(|err| err.into())
 }
 
+#[tauri::command]
+#[specta::specta]
+fn toggle(socket_addr: SocketAddr, state: State<'_, Mutex<AppState>>) -> AppResult<bool> {
+    let state = state.lock().unwrap();
+    let model = state.get_model(socket_addr)?;
+    TpLinkDevice::try_new(socket_addr, &model)?
+        .toggle()
+        .map_err(|err| err.into())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let specta_builder = tauri_specta::Builder::<tauri::Wry>::new()
         .commands(tauri_specta::collect_commands![
             discover,
-            toggle,
-            get_devices,
-            set_brightness
+            set_brightness,
+            toggle
         ])
         .events(tauri_specta::collect_events![]);
 
@@ -99,12 +82,7 @@ pub fn run() {
         )
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(specta_builder.invoke_handler())
-        .invoke_handler(tauri::generate_handler![
-            discover,
-            toggle,
-            get_devices,
-            set_brightness
-        ])
+        .invoke_handler(tauri::generate_handler![discover, set_brightness, toggle])
         .setup(move |app| {
             specta_builder.mount_events(app);
 
