@@ -1,4 +1,5 @@
 import { Button, Progress, Slider } from '@nextui-org/react';
+import { PiEmpty } from 'react-icons/pi';
 import { cx } from 'class-variance-authority';
 import { useEffect, useState } from 'react';
 import { AiOutlinePoweroff } from 'react-icons/ai';
@@ -79,6 +80,15 @@ function App() {
 
       {error && (
         <pre className="text-red-500">{JSON.stringify(error, null, 2)}</pre>
+      )}
+
+      {devices.length === 0 && (
+        <div className="flex flex-row h-96 items-center justify-center w-full">
+          <div className="flex flex-col gap-2 items-center w-full">
+            <PiEmpty size={32} />
+            <h2 className="text-2xl">No Devices</h2>
+          </div>
+        </div>
       )}
 
       {devices.map(device => (
