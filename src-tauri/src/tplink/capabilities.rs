@@ -1,73 +1,36 @@
-#![allow(unused)]
 use super::{
-    error::{TpError, TpResult},
+    error::TpResult,
     models::{DeviceResponse, SysInfo},
     protocol::validate_response_code,
 };
-use log::*;
 use serde::de::DeserializeOwned;
 use serde_json::json;
 use std::time::Duration;
 
-#[derive(Copy, serde::Serialize, serde::Deserialize, Clone, Debug)]
-pub struct ControlParams {
-    pub brightness: u8,
-    pub is_on: bool,
-}
-
-impl ControlParams {
-    pub fn from_sysinfo(sysinfo: &SysInfo) -> Self {
-        Self {
-            brightness: sysinfo.brightness(),
-            is_on: sysinfo.is_on(),
-        }
-    }
-}
-
-pub trait CachedControlParams {
-    fn get_cached_params(&self) -> ControlParams;
-
-    fn set_cached_params(&mut self, params: ControlParams) -> ();
-
-    fn set_cached_brightness(&mut self, brightness: u8) -> () {
-        self.set_cached_params(ControlParams {
-            brightness,
-            ..self.get_cached_params()
-        })
-    }
-
-    fn set_cached_is_on(&mut self, is_on: bool) -> () {
-        self.set_cached_params(ControlParams {
-            is_on,
-            ..self.get_cached_params()
-        })
-    }
-}
-
 /// The basic set of functions available to all TPLink smart devices
 /// All devices support this trait.
-pub trait CommonCapabilities: CachedControlParams {
+pub trait CommonCapabilities {
     /// Send a message to a device and return its parsed response
     /// Will return `Err` if there is a `io::Error` communicating with the
     /// device or a problem decoding the response.
     fn send<T: DeserializeOwned>(&self, msg: &str) -> TpResult<T>;
 
     /// Get system information
+    #[allow(unused)]
     fn get_sysinfo(&mut self) -> TpResult<SysInfo> {
         Ok(self
             .send::<DeviceResponse>(r#"{"system":{"get_sysinfo":null}}"#)?
             .system
             .sysinfo)
-        .map(|sysinfo| {
-            self.set_cached_params(ControlParams::from_sysinfo(&sysinfo));
-            info!("Cached control params set");
-            sysinfo
-        })
     }
+
+    #[allow(unused)]
 
     fn get_alias(&mut self) -> TpResult<String> {
         Ok(self.get_sysinfo()?.alias)
     }
+
+    #[allow(unused)]
 
     fn set_alias(&self, alias: &str) -> TpResult<()> {
         let command = json!({ "system": {"set_dev_alias": {"alias": alias}} }).to_string();
@@ -76,11 +39,13 @@ pub trait CommonCapabilities: CachedControlParams {
     }
 
     /// Reboot the device in 1 second
+    #[allow(unused)]
     fn reboot(&self) -> TpResult<()> {
         self.reboot_with_delay(Duration::from_secs(1))
     }
 
     /// Reboot the device with a specified delay
+    #[allow(unused)]
     fn reboot_with_delay(&self, delay: Duration) -> TpResult<()> {
         let command = json!({
             "system": {"reboot": {"delay": delay.as_secs()}}
@@ -91,34 +56,37 @@ pub trait CommonCapabilities: CachedControlParams {
     }
 
     /// Check whether the device is on
+    #[allow(unused)]
     fn get_is_on(&mut self) -> TpResult<bool> {
         self.get_sysinfo().map(|sysinfo| sysinfo.is_on())
     }
 
     /// Check whether the device is off
+    #[allow(unused)]
     fn get_is_off(&mut self) -> TpResult<bool> {
         Ok(!self.get_is_on()?)
     }
 
     /// Switch the device on
+    #[allow(unused)]
     fn switch_on(&mut self) -> TpResult<()> {
         validate_response_code(
             &self.send(&r#"{"system":{"set_relay_state":{"state":1}}}"#)?,
             "/system/set_relay_state/err_code",
         )
-        .map(|_| self.set_cached_is_on(true))
     }
 
     /// Switch the device off
+    #[allow(unused)]
     fn switch_off(&mut self) -> TpResult<()> {
         validate_response_code(
             &self.send(&r#"{"system":{"set_relay_state":{"state":0}}}"#)?,
             "/system/set_relay_state/err_code",
         )
-        .map(|_| self.set_cached_is_on(false))
     }
 
     /// Toggle the device's on state
+    #[allow(unused)]
     fn toggle(&mut self) -> TpResult<bool> {
         if self.get_is_on()? {
             self.switch_off()?;
@@ -131,6 +99,7 @@ pub trait CommonCapabilities: CachedControlParams {
 }
 
 pub trait Dimmable: CommonCapabilities {
+    #[allow(unused)]
     fn get_dimmer_parameters(&self) -> TpResult<()> {
         let command = json!({"smartlife.iot.dimmer":{"get_dimmer_parameters":{}}}).to_string();
 
@@ -140,6 +109,7 @@ pub trait Dimmable: CommonCapabilities {
         )
     }
 
+    #[allow(unused)]
     fn get_default_behavior(&self) -> TpResult<()> {
         let command = json!({"smartlife.iot.dimmer":{"get_default_behavior":{}}}).to_string();
 
@@ -150,6 +120,7 @@ pub trait Dimmable: CommonCapabilities {
     }
 
     /// @todo Replace with transition state
+    #[allow(unused)]
     fn set_transition(&mut self, brightness: u8) -> TpResult<()> {
         let brightness = brightness.min(100).max(1);
         let command = json!({
@@ -167,7 +138,6 @@ pub trait Dimmable: CommonCapabilities {
             &self.send(&command)?,
             "/smartlife.iot.dimmer/set_dimmer_transition/err_code",
         )
-        .map(|_| self.set_cached_brightness(brightness))
     }
 
     fn set_brightness(&mut self, brightness: u8) -> TpResult<()> {
@@ -186,7 +156,6 @@ pub trait Dimmable: CommonCapabilities {
             &self.send(&command)?,
             "/smartlife.iot.dimmer/set_brightness/err_code",
         )
-        .map(|_| self.set_cached_brightness(brightness))
     }
 
     // fn set_switch_state(&self, switch_on: bool) -> TpResult<()> {

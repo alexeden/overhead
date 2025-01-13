@@ -47,18 +47,23 @@ pub struct SysInfo {
 impl SysInfo {
     /// If the device isn't dimmable, returns 0 or 100 based solely on relay
     /// state
+    #[allow(unused)]
     pub fn brightness(&self) -> u8 {
         self.brightness
             .unwrap_or(if self.is_on() { 100 } else { 0 })
     }
 
-    // pub fn brightness_f32(&self) -> f32 {
-    //     (self.brightness() as f32) / 100.
-    // }
-
     pub fn is_on(&self) -> bool {
         self.relay_state
             .map(|relay_state| relay_state > 0)
             .unwrap_or(false)
+    }
+}
+
+impl From<SysInfo> for DeviceResponse {
+    fn from(sysinfo: SysInfo) -> Self {
+        Self {
+            system: System { sysinfo },
+        }
     }
 }

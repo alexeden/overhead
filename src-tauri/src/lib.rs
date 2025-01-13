@@ -1,23 +1,19 @@
-use serde::Serialize;
-use specta_typescript::Typescript;
-use std::net::SocketAddr;
-use tauri::ipc::Channel;
-use tauri_plugin_store::StoreExt;
-use tplink::{
-    devices::Device,
-    discover::discover_devices,
-    error::{TpError, TpResult},
-    models::{DeviceResponse, SysInfo},
-    prelude::*,
+use crate::tplink::{
+    devices::Device as TpLinkDevice, discover::discover_devices, error::TpResult, prelude::*,
 };
+use messages::{Device, DiscoverEvent};
+use specta_typescript::Typescript;
+use std::{collections::HashMap, net::SocketAddr, sync::Mutex};
+use tauri::{ipc::Channel, Manager, State};
+use tauri_plugin_store::StoreExt;
+use tplink::models::DeviceResponse;
+mod messages;
 mod tplink;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Eq, specta::Type)]
-pub enum DiscoverEvent {
-    Start,
-    Progress(u64),
-    End,
-    Error(String),
+#[derive(Default)]
+struct AppState {
+    /// Maintain a map of device models by their socket address
+    models: HashMap<SocketAddr, String>,
 }
 
 #[tauri::command]
@@ -36,31 +32,37 @@ fn discover(on_event: Channel<DiscoverEvent>) -> TpResult<()> {
 
 #[tauri::command]
 #[specta::specta]
-fn get_devices() -> Vec<(SocketAddr, DeviceResponse)> {
-    let devices = discover_devices();
-    devices.unwrap()
+fn get_devices(state: State<'_, Mutex<AppState>>) -> TpResult<Vec<Device>> {
+    let mut state = state.lock().unwrap();
+
+    discover_devices().map(|resps| {
+        resps
+            .into_iter()
+            .map(|(addr, resp)| {
+                let model = resp.sysinfo().model.clone();
+                state.models.insert(addr, model);
+                (addr, resp).into()
+            })
+            .collect()
+    })
 }
+
+// #[tauri::command]
+// #[specta::specta]
+// fn device_command(socket_addr: SocketAddr, device: DeviceResponse) -> TpResult<bool> {
+//     // let model = &device_data.sysinfo().model;
+//     let mut dev = TpLinkDevice::from_response(socket_addr, &device).ok_or("Device not found")?;
+//     dev.toggle()
+// }
 
 #[tauri::command]
 #[specta::specta]
-fn device_command(socket_addr: SocketAddr, device: DeviceResponse) -> TpResult<bool> {
-    let mut dev = Device::from_response(socket_addr, &device).ok_or("Device not found")?;
-    dev.toggle()
-}
+fn set_brightness(socket_addr: SocketAddr, device: DeviceResponse, brightness: u8) -> TpResult<()> {
+    let model = &device.sysinfo().model;
 
-#[tauri::command]
-#[specta::specta]
-fn set_brightness(
-    socket_addr: SocketAddr,
-    device: DeviceResponse,
-    brightness: u8,
-) -> TpResult<SysInfo> {
-    let mut dev = Device::from_response(socket_addr, &device).ok_or("Device not found")?;
-    dev.as_dimmable()
-        .ok_or(TpError::Other("Not dimmable".to_string()))
-        .and_then(|d| d.set_brightness(brightness).map(|_| d))
-        .and_then(|d| d.get_sysinfo())
-    // .and_then(|d| d.g)
+    let mut dev = TpLinkDevice::try_new(socket_addr, model)?;
+    dev.try_into_dimmable()
+        .and_then(|d| d.set_brightness(brightness))
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -68,7 +70,7 @@ pub fn run() {
     let specta_builder = tauri_specta::Builder::<tauri::Wry>::new()
         .commands(tauri_specta::collect_commands![
             discover,
-            device_command,
+            // device_command,
             get_devices,
             set_brightness
         ])
@@ -96,12 +98,14 @@ pub fn run() {
         .invoke_handler(specta_builder.invoke_handler())
         .invoke_handler(tauri::generate_handler![
             discover,
-            device_command,
+            // device_command,
             get_devices,
             set_brightness
         ])
         .setup(move |app| {
             specta_builder.mount_events(app);
+
+            app.manage(Mutex::new(AppState::default()));
 
             let _store = app.store("store.json")?;
 

@@ -46,7 +46,7 @@ pub fn send(addr: SocketAddr, msg: &str) -> Result<String, TpError> {
     debug!("Sending to IP {:?} this message: {:?}", addr, msg);
     let payload = encrypt(msg)?;
     let mut stream = TcpStream::connect(addr)?;
-    stream.set_read_timeout(Some(Duration::new(5, 0)))?;
+    stream.set_read_timeout(Some(Duration::new(1, 0)))?;
     stream.write_all(&payload)?;
 
     let mut resp = vec![];

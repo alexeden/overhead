@@ -1,7 +1,5 @@
 use super::{
-    capabilities::{CachedControlParams, ControlParams},
-    error::TpResult,
-    models::DeviceResponse,
+    error::{TpError, TpResult},
     prelude::*,
     protocol::send,
 };
@@ -14,30 +12,11 @@ macro_rules! new_device {
         #[derive(Clone, Debug)]
         pub struct $model {
             pub addr: SocketAddr,
-            control_params: ControlParams,
         }
 
         impl $model {
-            pub fn new(addr: SocketAddr, data: &DeviceResponse) -> Self {
-                Self {
-                    addr: addr.clone(),
-                    control_params: ControlParams::from_sysinfo(&data.system.sysinfo),
-                }
-            }
-        }
-
-        impl CachedControlParams for $model {
-            fn get_cached_params(&self) -> ControlParams {
-                self.control_params
-            }
-
-            fn set_cached_params(&mut self, params: ControlParams) -> () {
-                self.control_params = params;
-                info!(
-                    "{} - Params set {:?}",
-                    std::thread::current().name().unwrap_or("NO THREAD NAME"),
-                    params
-                )
+            pub fn new(addr: SocketAddr) -> Self {
+                Self { addr: addr.clone() }
             }
         }
 
@@ -63,38 +42,23 @@ pub enum Device {
 }
 
 impl Device {
-    pub fn from_response(addr: SocketAddr, device_data: &DeviceResponse) -> Option<Device> {
-        let model = &device_data.sysinfo().model;
+    pub fn try_new(addr: SocketAddr, model: &str) -> TpResult<Device> {
+        // let model = &device_data.sysinfo().model;
         if model.contains("EP10") {
-            Some(Device::EP10(EP10::new(addr, device_data)))
+            Ok(Device::EP10(EP10::new(addr)))
         } else if model.contains("HS220") || model.contains("KP405") || model.contains("ES20M") {
-            Some(Device::HS220(HS220::new(addr, device_data)))
+            Ok(Device::HS220(HS220::new(addr)))
         } else {
-            warn!("Unknown device {:?}", device_data);
-            None
+            Err(TpError::UnknownModel(model.to_string()))
+            // warn!("Unknown device model {:?}", model);
+            // None
         }
     }
 
-    pub fn as_dimmable(&mut self) -> Option<&mut impl Dimmable> {
+    pub fn try_into_dimmable(&mut self) -> TpResult<&mut impl Dimmable> {
         match self {
-            Device::HS220(d) => Some(d),
-            _ => None,
-        }
-    }
-}
-
-impl CachedControlParams for Device {
-    fn get_cached_params(&self) -> ControlParams {
-        match self {
-            Device::EP10(d) => d.control_params,
-            Device::HS220(d) => d.control_params,
-        }
-    }
-
-    fn set_cached_params(&mut self, params: ControlParams) {
-        match self {
-            Device::EP10(d) => d.set_cached_params(params),
-            Device::HS220(d) => d.set_cached_params(params),
+            Device::HS220(d) => Ok(d),
+            _ => Err(TpError::Unsupported("dimmable".to_string())),
         }
     }
 }

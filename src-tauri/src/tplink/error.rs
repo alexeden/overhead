@@ -15,8 +15,12 @@ pub enum TpError {
     Serde(String),
     /// Error decoding a section of the JSON response
     TPLink(SectionError),
+    /// Unknown device model
+    UnknownModel(String),
+    /// Tried to use a feature that is not supported by the device
+    Unsupported(String),
     /// A generic error
-    Other(String),
+    Unknown(String),
 }
 
 impl fmt::Display for TpError {
@@ -30,7 +34,13 @@ impl fmt::Display for TpError {
                 "Response data error: ({:?}) {:?}",
                 err_code, err_msg,
             )),
-            TpError::Other(err) => f.write_str(&err),
+            TpError::Unknown(err) => f.write_str(&err),
+            TpError::UnknownModel(model) => {
+                f.write_str(&format!("Unknown device model: {:?}", model))
+            }
+            TpError::Unsupported(feature) => {
+                f.write_str(&format!("Unsupported feature: {:?}", feature))
+            }
         }
     }
 }
@@ -41,7 +51,9 @@ impl error::Error for TpError {
             TpError::IO(_) => "Error connecting to the device",
             TpError::Serde(_) => "Could not parse the response received from the device",
             TpError::TPLink(_) => "Response data error",
-            TpError::Other(err) => err.as_str(),
+            TpError::Unknown(_) => "Unknown error",
+            TpError::UnknownModel(_) => "Unknown device model",
+            TpError::Unsupported(feature) => "Unsupported feature",
         }
     }
 }
@@ -61,13 +73,13 @@ impl From<serde_json::Error> for TpError {
 
 impl From<&str> for TpError {
     fn from(error: &str) -> Self {
-        TpError::from(String::from(error))
+        TpError::Unknown(String::from(error))
     }
 }
 
 impl From<String> for TpError {
     fn from(error: String) -> Self {
-        TpError::Other(error)
+        TpError::Unknown(error)
     }
 }
 
