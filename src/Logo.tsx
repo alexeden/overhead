@@ -5,7 +5,7 @@ export const Logo = (attrs: React.HTMLAttributes<SVGSVGElement>) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <circle cx="12" cy="6.5" r="2.3" fill="currentColor" />
+    <circle cx="12" cy="6.5" r="1.8" fill="currentColor" />
     <path
       fill-rule="evenodd"
       clip-rule="evenodd"
