@@ -95,12 +95,13 @@ function App() {
         <div
           key={device.addr}
           className={cx(
-            'flex flex-col gap-4 w-full p-4 rounded-xl transition-background',
+            'flex flex-col gap-4 w-full p-4 rounded-xl transition-backgroun select-noned',
             !device.isOn ? 'bg-alpha-50' : 'bg-alpha-300'
           )}
+          onDoubleClick={() => toggle(device.addr)}
         >
           <div className="flex flex-row justify-between items-center w-full">
-            <h4 className="font-bold font-lg m-0">{device.name}</h4>
+            <h4 className="font-bold font-lg m-0 select-none">{device.name}</h4>
             <Button
               isIconOnly
               aria-label="Toggle power"
