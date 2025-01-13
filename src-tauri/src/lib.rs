@@ -1,26 +1,15 @@
-use crate::tplink::{
-    devices::Device as TpLinkDevice, discover::discover_devices, error::TpResult, prelude::*,
-};
-use messages::{Device, DiscoverEvent};
+use crate::tplink::{devices::Device as TpLinkDevice, discover::discover_devices, prelude::*};
+use app::{AppResult, AppState, Device, DiscoverEvent};
 use specta_typescript::Typescript;
-use std::{collections::HashMap, net::SocketAddr, sync::Mutex};
+use std::{net::SocketAddr, sync::Mutex};
 use tauri::{ipc::Channel, Manager, State};
 use tauri_plugin_store::StoreExt;
-use tplink::models::DeviceResponse;
-mod messages;
+mod app;
 mod tplink;
-
-#[derive(Default)]
-struct AppState {
-    /// Maintain a map of device models by their socket address
-    models: HashMap<SocketAddr, String>,
-}
 
 #[tauri::command]
 #[specta::specta]
-fn discover(on_event: Channel<DiscoverEvent>) -> TpResult<()> {
-    // let devices = discover_devices();
-    // devices.unwrap()
+fn discover(on_event: Channel<DiscoverEvent>) -> AppResult<()> {
     on_event.send(DiscoverEvent::Start).unwrap();
     // Wait for 5 seconds
     std::thread::spawn(move || {
@@ -32,37 +21,47 @@ fn discover(on_event: Channel<DiscoverEvent>) -> TpResult<()> {
 
 #[tauri::command]
 #[specta::specta]
-fn get_devices(state: State<'_, Mutex<AppState>>) -> TpResult<Vec<Device>> {
+fn get_devices(state: State<'_, Mutex<AppState>>) -> AppResult<Vec<Device>> {
     let mut state = state.lock().unwrap();
 
-    discover_devices().map(|resps| {
-        resps
-            .into_iter()
-            .map(|(addr, resp)| {
-                let model = resp.sysinfo().model.clone();
-                state.models.insert(addr, model);
-                (addr, resp).into()
-            })
-            .collect()
-    })
+    discover_devices()
+        .map(|resps| {
+            resps
+                .into_iter()
+                .map(|(addr, resp)| {
+                    let model = resp.sysinfo().model.clone();
+                    state.models.insert(addr, model);
+                    (addr, resp).into()
+                })
+                .collect()
+        })
+        .map_err(|err| err.into())
 }
-
-// #[tauri::command]
-// #[specta::specta]
-// fn device_command(socket_addr: SocketAddr, device: DeviceResponse) -> TpResult<bool> {
-//     // let model = &device_data.sysinfo().model;
-//     let mut dev = TpLinkDevice::from_response(socket_addr, &device).ok_or("Device not found")?;
-//     dev.toggle()
-// }
 
 #[tauri::command]
 #[specta::specta]
-fn set_brightness(socket_addr: SocketAddr, device: DeviceResponse, brightness: u8) -> TpResult<()> {
-    let model = &device.sysinfo().model;
+fn toggle(socket_addr: SocketAddr, state: State<'_, Mutex<AppState>>) -> AppResult<bool> {
+    let state = state.lock().unwrap();
+    let model = state.get_model(socket_addr)?;
+    TpLinkDevice::try_new(socket_addr, &model)?
+        .toggle()
+        .map_err(|err| err.into())
+}
 
-    let mut dev = TpLinkDevice::try_new(socket_addr, model)?;
-    dev.try_into_dimmable()
+#[tauri::command]
+#[specta::specta]
+fn set_brightness(
+    socket_addr: SocketAddr,
+    brightness: u8,
+    state: State<'_, Mutex<AppState>>,
+) -> AppResult<()> {
+    let state = state.lock().unwrap();
+    let model = state.get_model(socket_addr)?;
+
+    TpLinkDevice::try_new(socket_addr, &model)?
+        .try_into_dimmable()
         .and_then(|d| d.set_brightness(brightness))
+        .map_err(|err| err.into())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -70,7 +69,7 @@ pub fn run() {
     let specta_builder = tauri_specta::Builder::<tauri::Wry>::new()
         .commands(tauri_specta::collect_commands![
             discover,
-            // device_command,
+            toggle,
             get_devices,
             set_brightness
         ])
@@ -98,7 +97,7 @@ pub fn run() {
         .invoke_handler(specta_builder.invoke_handler())
         .invoke_handler(tauri::generate_handler![
             discover,
-            // device_command,
+            toggle,
             get_devices,
             set_brightness
         ])
