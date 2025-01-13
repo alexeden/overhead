@@ -95,14 +95,14 @@ function App() {
           {typeof device.brightness === 'number' && (
             <Slider
               classNames={{
-                track: 'border-r-[transparent] border-l-secondary-50',
+                track: 'border-r-[transparent] !border-l-secondary-50',
                 filler: 'bg-gradient-to-r from-secondary-50 to-primary-500',
               }}
               aria-label="Brightness"
+              defaultValue={device.brightness ?? 0}
               maxValue={100}
               minValue={0}
               onChangeEnd={e => setBrightness(device.addr, +e)}
-              value={device.brightness ?? 0}
             />
           )}
         </div>
