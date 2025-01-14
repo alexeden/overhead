@@ -1,10 +1,13 @@
 name: CI
 
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
-      - ga
+      - release
 
 jobs:
   test-tauri:
@@ -51,7 +54,7 @@ jobs:
 
       # Test build only
       - uses: tauri-apps/tauri-action@v0
-        if: github.ref == 'refs/heads/main'
+        if: github.ref != 'refs/heads/release'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
