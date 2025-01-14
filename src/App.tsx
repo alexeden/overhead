@@ -7,7 +7,7 @@ import { commands, Device } from './bindings';
 import './global.css';
 import { Logo } from './Logo';
 
-function App() {
+export default function App() {
   async function setBrightness(socketAddr: string, brightness: number) {
     const result = await commands.setBrightness(socketAddr, brightness);
     if (result.status !== 'ok') {
@@ -39,8 +39,11 @@ function App() {
       setLoading(true);
       const result = await commands.discover();
       if (result.status === 'ok') {
-        setDevices(
-          result.data.sort((d1, d2) => d1.name.localeCompare(d2.name))
+        setDevices(ds =>
+          Object.values({
+            ...Object.fromEntries(ds.map(d => [d.addr, d])), // known devices
+            ...Object.fromEntries(result.data.map(d => [d.addr, d])), // discovered/updated devices
+          })
         );
       } else {
         setError(JSON.stringify(result.error, null, 2));
@@ -53,7 +56,8 @@ function App() {
   };
 
   useEffect(() => {
-    setInterval(discoverDevices, 10000);
+    const interval = setInterval(discoverDevices, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -130,5 +134,3 @@ function App() {
     </main>
   );
 }
-
-export default App;
