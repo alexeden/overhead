@@ -25,13 +25,11 @@ pub trait CommonCapabilities {
     }
 
     #[allow(unused)]
-
     fn get_alias(&mut self) -> TpResult<String> {
         Ok(self.get_sysinfo()?.alias)
     }
 
     #[allow(unused)]
-
     fn set_alias(&self, alias: &str) -> TpResult<()> {
         let command = json!({ "system": {"set_dev_alias": {"alias": alias}} }).to_string();
 
@@ -56,19 +54,16 @@ pub trait CommonCapabilities {
     }
 
     /// Check whether the device is on
-    #[allow(unused)]
     fn get_is_on(&mut self) -> TpResult<bool> {
         self.get_sysinfo().map(|sysinfo| sysinfo.is_on())
     }
 
     /// Check whether the device is off
-    #[allow(unused)]
     fn get_is_off(&mut self) -> TpResult<bool> {
         Ok(!self.get_is_on()?)
     }
 
     /// Switch the device on
-    #[allow(unused)]
     fn switch_on(&mut self) -> TpResult<()> {
         validate_response_code(
             &self.send(&r#"{"system":{"set_relay_state":{"state":1}}}"#)?,
@@ -77,7 +72,6 @@ pub trait CommonCapabilities {
     }
 
     /// Switch the device off
-    #[allow(unused)]
     fn switch_off(&mut self) -> TpResult<()> {
         validate_response_code(
             &self.send(&r#"{"system":{"set_relay_state":{"state":0}}}"#)?,
@@ -86,7 +80,6 @@ pub trait CommonCapabilities {
     }
 
     /// Toggle the device's on state
-    #[allow(unused)]
     fn toggle(&mut self) -> TpResult<bool> {
         if self.get_is_on()? {
             self.switch_off()?;
