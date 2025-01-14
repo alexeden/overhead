@@ -18,7 +18,6 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 byteorder = "1"
 log = { version = "0.4", default-features = false }
-# network-interface = "2.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 specta = { version = "=2.0.0-rc.20", features = [] }

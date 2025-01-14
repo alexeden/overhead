@@ -49,13 +49,20 @@ jobs:
       - name: PNPM Install
         run: pnpm install
 
+      # Test build only
       - uses: tauri-apps/tauri-action@v0
+        if: github.ref == 'refs/heads/main'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: ${{ matrix.args }}
-          prerelease: false
-          releaseBody: 'See the assets to download this version and install.'
-          # releaseDraft: true
+
+      # Release build
+      - uses: tauri-apps/tauri-action@v0
+        if: github.ref == 'refs/heads/release'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: ${{ matrix.args }}
           releaseName: 'Overhead v__VERSION__'
           tagName: overhead-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
