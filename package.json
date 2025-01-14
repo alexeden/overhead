@@ -1,6 +1,11 @@
 {
   "name": "overhead",
   "version": "0.1.0",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "pnpm": ">=9.15.0",
+    "node": ">=20"
+  },
   "description": "",
   "type": "module",
   "scripts": {
@@ -40,6 +45,6 @@
     "printWidth": 80,
     "singleQuote": true,
     "trailingComma": "es5",
-    "plugins": []
+    "plugins": [ ]
   }
 }
