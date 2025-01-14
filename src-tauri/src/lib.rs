@@ -1,6 +1,5 @@
 use crate::tplink::{devices::Device as TpLinkDevice, discover::discover_devices, prelude::*};
 use app::{AppResult, AppState, Device};
-use specta_typescript::Typescript;
 use std::{net::SocketAddr, sync::Mutex};
 use tauri::{Manager, State};
 use tauri_plugin_store::StoreExt;
@@ -65,7 +64,7 @@ pub fn run() {
     #[cfg(debug_assertions)]
     specta_builder
         .export(
-            Typescript::new()
+            specta_typescript::Typescript::new()
                 .bigint(specta_typescript::BigIntExportBehavior::Number)
                 .formatter(specta_typescript::formatter::prettier)
                 .header("// @ts-nocheck"),
