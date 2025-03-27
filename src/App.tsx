@@ -1,4 +1,4 @@
-import { Button, Progress, Slider } from '@nextui-org/react';
+import { Button, Progress, Slider } from '@heroui/react';
 import { PiEmpty } from 'react-icons/pi';
 import { cx } from 'class-variance-authority';
 import { useEffect, useState } from 'react';

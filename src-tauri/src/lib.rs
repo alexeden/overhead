@@ -101,7 +101,8 @@ pub fn run() {
                         app,
                         &[&MenuItem::with_id(app, "quit", "Test", true, None::<&str>)?],
                     )?)
-                    .menu_on_left_click(true)
+                    // .menu_on_left_click(true)
+                    // .m
                     .build(app)?;
             }
             Ok(())

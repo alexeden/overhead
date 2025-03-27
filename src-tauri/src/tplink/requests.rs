@@ -26,7 +26,7 @@ impl Request {
             Request::SetBrightness(brightness) => json!({
                 "smartlife.iot.dimmer": {
                     "set_brightness": {
-                        "brightness": (*brightness as u8).clamp(0, 100)
+                        "brightness": (*brightness).clamp(0, 100)
                     }
                 }
             })

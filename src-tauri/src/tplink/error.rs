@@ -34,7 +34,7 @@ impl fmt::Display for TpError {
                 "Response data error: ({:?}) {:?}",
                 err_code, err_msg,
             )),
-            TpError::Unknown(err) => f.write_str(&err),
+            TpError::Unknown(err) => f.write_str(err),
             TpError::UnknownModel(model) => {
                 f.write_str(&format!("Unknown device model: {:?}", model))
             }

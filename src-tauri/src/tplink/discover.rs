@@ -52,7 +52,7 @@ pub fn discover_devices() -> TpResult<Vec<(SocketAddr, DeviceResponse)>> {
         }
 
         let data = decrypt(&mut buf[0..size]);
-        info!("\n\nDecrypted buffer\n{}", data);
+        // info!("\n\nDecrypted buffer\n{}", data);
 
         match serde_json::from_str::<DeviceResponse>(&data) {
             Ok(device_data) => {

@@ -59,6 +59,7 @@ pub trait CommonCapabilities {
     }
 
     /// Check whether the device is off
+    #[allow(dead_code)]
     fn get_is_off(&mut self) -> TpResult<bool> {
         Ok(!self.get_is_on()?)
     }
@@ -66,7 +67,7 @@ pub trait CommonCapabilities {
     /// Switch the device on
     fn switch_on(&mut self) -> TpResult<()> {
         validate_response_code(
-            &self.send(&r#"{"system":{"set_relay_state":{"state":1}}}"#)?,
+            &self.send(r#"{"system":{"set_relay_state":{"state":1}}}"#)?,
             "/system/set_relay_state/err_code",
         )
     }
@@ -74,7 +75,7 @@ pub trait CommonCapabilities {
     /// Switch the device off
     fn switch_off(&mut self) -> TpResult<()> {
         validate_response_code(
-            &self.send(&r#"{"system":{"set_relay_state":{"state":0}}}"#)?,
+            &self.send(r#"{"system":{"set_relay_state":{"state":0}}}"#)?,
             "/system/set_relay_state/err_code",
         )
     }
@@ -115,7 +116,7 @@ pub trait Dimmable: CommonCapabilities {
     /// @todo Replace with transition state
     #[allow(unused)]
     fn set_transition(&mut self, brightness: u8) -> TpResult<()> {
-        let brightness = brightness.min(100).max(1);
+        let brightness = brightness.clamp(1, 100);
         let command = json!({
             "smartlife.iot.dimmer": {
                 "set_dimmer_transition": {
@@ -134,7 +135,7 @@ pub trait Dimmable: CommonCapabilities {
     }
 
     fn set_brightness(&mut self, brightness: u8) -> TpResult<()> {
-        let brightness = brightness.min(100).max(1);
+        let brightness = brightness.clamp(1, 100);
 
         let command = json!({
             "smartlife.iot.dimmer": {

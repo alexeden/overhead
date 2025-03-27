@@ -2,7 +2,6 @@ use super::error::{TpError, TpResult};
 use byteorder::{BigEndian, ByteOrder, WriteBytesExt};
 use log::*;
 use std::{
-    convert::TryInto,
     io::{Read, Write},
     net::{SocketAddr, TcpStream},
     time::Duration,
@@ -60,7 +59,7 @@ pub fn send(addr: SocketAddr, msg: &str) -> Result<String, TpError> {
             }
             resp.extend_from_slice(&buffer[0..read]);
             let lval: u32 = length.unwrap();
-            if lval > 0 && resp.len() >= (lval + 4).try_into().unwrap() || read == 0 {
+            if lval > 0 && resp.len() >= (lval as usize) + 4 || read == 0 {
                 break;
             }
         }
