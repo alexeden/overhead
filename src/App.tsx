@@ -1,4 +1,5 @@
 import { Button, Progress, Slider } from '@heroui/react';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { PiEmpty } from 'react-icons/pi';
 import { cx } from 'class-variance-authority';
 import { useEffect, useState } from 'react';
@@ -56,8 +57,29 @@ export default function App() {
   };
 
   useEffect(() => {
-    const interval = setInterval(discoverDevices, 30000);
-    return () => clearInterval(interval);
+    discoverDevices();
+
+    /** Rediscover devices on window focus */
+    const unlisten = getCurrentWindow().onFocusChanged(isFocused => {
+      console.log('focus changed', isFocused);
+      if (isFocused) {
+        discoverDevices();
+      }
+    });
+
+    /** Rediscover devices every 30 seconds but only if the window is focused */
+    const interval = setInterval(async () => {
+      if (!(await getCurrentWindow().isFocused())) {
+        console.log('not focused');
+        return;
+      }
+      discoverDevices();
+    }, 30000);
+
+    return () => {
+      clearInterval(interval);
+      unlisten.then(fn => fn());
+    };
   }, []);
 
   return (
