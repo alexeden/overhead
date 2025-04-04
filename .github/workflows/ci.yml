@@ -9,6 +9,10 @@ on:
       - main
       - release
 
+# Make sure CI fails on all warnings, including Clippy lints
+env:
+  RUSTFLAGS: '-Dwarnings'
+
 jobs:
   test-tauri:
     strategy:
@@ -51,6 +55,9 @@ jobs:
 
       - name: PNPM Install
         run: pnpm install
+
+      - name: Clippy
+        run: (cd srt-tauri && cargo clippy --all-targets --all-features)
 
       # Test build only
       - uses: tauri-apps/tauri-action@v0
