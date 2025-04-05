@@ -47,13 +47,13 @@ pub enum Device {
 
 impl Device {
     pub fn try_new(addr: SocketAddr, model: &str) -> TpResult<Device> {
-        // let model = &device_data.sysinfo().model;
         if model.contains("EP10") {
             Ok(Device::EP10(EP10::new(addr)))
         } else if model.contains("HS220") || model.contains("KP405") || model.contains("ES20M") {
             Ok(Device::HS220(HS220::new(addr)))
         } else if model.contains("KL135") {
-            Ok(Device::KL135(KL135::new(addr)))
+            Ok(Device::HS220(HS220::new(addr)))
+            // Ok(Device::KL135(KL135::new(addr)))
         } else {
             Err(TpError::UnknownModel(model.to_string()))
         }
@@ -61,8 +61,8 @@ impl Device {
 
     pub fn try_into_dimmable(&mut self) -> TpResult<&mut impl Dimmable> {
         match self {
+            // Device::KL135(d) => Ok(d),
             Device::HS220(d) => Ok(d),
-            Device::KL135(d) => Ok(d),
             _ => Err(TpError::Unsupported("dimmable".to_string())),
         }
     }

@@ -207,5 +207,37 @@
         "updating": 0
       }
     }
+  },
+  {
+    "system": {
+      "get_sysinfo": {
+        "active_mode": "none",
+        "alias": "Shelf Christmas Lights",
+        "dev_name": "Smart Wi-Fi Plug Mini",
+        "deviceId": "8006896CD56D25BD4674AFA44607EDBE2135A195",
+        "err_code": 0,
+        "feature": "TIM",
+        "hwId": "AE6865C67F6A54B756C0B5812472C825",
+        "hw_ver": "1.0",
+        "icon_hash": "",
+        "latitude_i": 390871,
+        "led_off": 0,
+        "longitude_i": -945874,
+        "mac": "78:8C:B5:6E:58:D5",
+        "mic_type": "IOT.SMARTPLUGSWITCH",
+        "model": "EP10(US)",
+        "next_action": {
+          "type": -1
+        },
+        "obd_src": "tplink",
+        "oemId": "41372DE62C896B2C0E93C20D70B62DDB",
+        "on_time": 10872,
+        "relay_state": 1,
+        "rssi": -51,
+        "status": "new",
+        "sw_ver": "1.0.5 Build 221021 Rel.183404",
+        "updating": 0
+      }
+    }
   }
 ]

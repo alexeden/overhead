@@ -56,13 +56,25 @@ export type AppError =
   | { Tp: TpError };
 export type Device = {
   addr: string;
-  brightness: number | null;
+  brightness: number;
   hwType: string;
   id: string;
   isOn: boolean;
+  lightState: LightState | null;
   model: string;
   name: string;
 };
+export type DftOnState = {
+  brightness: number;
+  color_temp: number;
+  hue: number;
+  mode: string;
+  saturation: number;
+};
+/**
+ * https://github.com/plasticrake/tplink-smarthome-api/blob/33f55531e6d5935d57a065fb95fa5dc340c4f392/src/bulb/lighting.ts#L12
+ */
+export type LightState = { dft_on_state: DftOnState; on_off: number };
 /**
  * Error response for a section of the JSON response
  */

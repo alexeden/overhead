@@ -35,6 +35,11 @@ fn set_brightness(
     let state = state.lock().unwrap();
     let model = state.get_model(socket_addr)?;
 
+    // let device = TpLinkDevice::try_new(socket_addr, &model)?;
+    // match device {
+    //     TpLinkDevice::KL135(d) | TpLinkDevice::HS220(d) => d.set_brightness(brightness),
+    //     TpLinkDevice::HS220(d) => d.set_brightness(brightness),
+    // }
     TpLinkDevice::try_new(socket_addr, &model)?
         .try_into_dimmable()
         .and_then(|d| d.set_brightness(brightness))

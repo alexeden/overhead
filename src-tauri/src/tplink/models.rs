@@ -55,9 +55,19 @@ impl SysInfo {
     }
 
     pub fn is_on(&self) -> bool {
-        self.relay_state
-            .map(|relay_state| relay_state > 0)
-            .unwrap_or(false)
+        match &self.light_state {
+            Some(LightState::On { on_off, .. }) => *on_off > 0,
+            Some(LightState::Off { on_off, .. }) => *on_off == 0,
+            None => self
+                .relay_state
+                .map(|relay_state| relay_state > 0)
+                .unwrap_or(false),
+        }
+        // if let Some(light_state) = &self.light_state {
+        //     light_state.on
+        // self.relay_state
+        //     .map(|relay_state| relay_state > 0)
+        //     .unwrap_or(false)
     }
 }
 
@@ -69,10 +79,19 @@ impl From<SysInfo> for DeviceResponse {
     }
 }
 
+/// https://github.com/plasticrake/tplink-smarthome-api/blob/33f55531e6d5935d57a065fb95fa5dc340c4f392/src/bulb/lighting.ts#L12
 #[derive(Debug, Deserialize, Serialize, Clone, specta::Type)]
-pub struct LightState {
-    dft_on_state: DftOnState,
-    on_off: u8,
+#[serde(untagged)]
+pub enum LightState {
+    On {
+        #[serde(flatten)]
+        dft_on_state: DftOnState,
+        on_off: u8,
+    },
+    Off {
+        dft_on_state: DftOnState,
+        on_off: u8,
+    },
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, specta::Type)]

@@ -1,4 +1,7 @@
-use crate::tplink::{error::TpError, models::DeviceResponse};
+use crate::tplink::{
+    error::TpError,
+    models::{DeviceResponse, LightState},
+};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, net::SocketAddr};
 
@@ -33,14 +36,15 @@ impl From<TpError> for AppError {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Eq, specta::Type)]
+#[derive(Debug, Clone, Serialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
 pub struct Device {
     pub addr: SocketAddr,
-    pub brightness: Option<u8>,
+    pub brightness: u8,
     pub hw_type: String,
     pub id: String,
     pub is_on: bool,
+    pub light_state: Option<LightState>,
     pub model: String,
     pub name: String,
 }
@@ -49,10 +53,11 @@ impl From<(SocketAddr, DeviceResponse)> for Device {
     fn from((addr, resp): (SocketAddr, DeviceResponse)) -> Self {
         Self {
             addr,
-            brightness: resp.sysinfo().brightness,
+            brightness: resp.sysinfo().brightness(),
             hw_type: resp.sysinfo().hw_type.clone(),
             id: resp.sysinfo().device_id.clone(),
             is_on: resp.sysinfo().is_on(),
+            light_state: resp.sysinfo().light_state.clone(),
             model: resp.sysinfo().model.clone(),
             name: resp.sysinfo().alias.clone(),
         }
