@@ -1,9 +1,20 @@
-import { Button, Progress, Slider } from '@heroui/react';
+import {
+  Alert,
+  Button,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  Progress,
+  Slider,
+  useDisclosure,
+} from '@heroui/react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
-import { PiEmpty } from 'react-icons/pi';
 import { cx } from 'class-variance-authority';
 import { useEffect, useState } from 'react';
 import { AiOutlinePoweroff } from 'react-icons/ai';
+import { PiEmpty } from 'react-icons/pi';
 import { commands, Device } from './bindings';
 import './global.css';
 import { Logo } from './Logo';
@@ -31,10 +42,11 @@ export default function App() {
     }
   }
 
+  // const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [devices, setDevices] = useState<Device[]>([]);
-
   const discoverDevices = async () => {
     try {
       setLoading(true);
@@ -105,7 +117,9 @@ export default function App() {
       </h1>
 
       {error && (
-        <pre className="text-red-500">{JSON.stringify(error, null, 2)}</pre>
+        <Alert className="w-full" hideIcon color="danger">
+          <pre className="text-red-500">{error}</pre>
+        </Alert>
       )}
 
       {devices.length === 0 && (
@@ -121,10 +135,10 @@ export default function App() {
         <div
           key={device.addr}
           className={cx(
-            'flex flex-col gap-4 w-full p-4 rounded-xl transition-backgroun select-noned',
+            'flex flex-col gap-4 w-full max-w-xl p-4 rounded-xl transition-background select-none cursor-pointer',
             !device.isOn ? 'bg-alpha-50' : 'bg-alpha-300'
           )}
-          onDoubleClick={() => toggle(device.addr)}
+          onClick={() => setSelectedDevice(device)}
         >
           <div className="flex flex-row justify-between items-center w-full">
             <h4 className="font-bold font-lg m-0 select-none">{device.name}</h4>
@@ -142,17 +156,66 @@ export default function App() {
           {typeof device.brightness === 'number' && (
             <Slider
               aria-label="Brightness"
-              className={cx(!device.isOn && '!opacity-10')}
+              className={cx(
+                !device.isOn && '!opacity-10',
+                'pointer-events-auto'
+              )}
               classNames={{ track: '!border-r-[transparent]' }}
               defaultValue={device.brightness ?? 0}
               isDisabled={!device.isOn}
               maxValue={100}
               minValue={0}
+              onClick={e => e.preventDefault()}
               onChangeEnd={e => setBrightness(device.addr, +e)}
             />
           )}
         </div>
       ))}
+
+      <Drawer
+        backdrop="blur"
+        isOpen={!!selectedDevice}
+        onOpenChange={isOpen =>
+          setSelectedDevice(isOpen ? selectedDevice : null)
+        }
+        size="sm"
+      >
+        <DrawerContent>
+          {onClose =>
+            selectedDevice && (
+              <>
+                <DrawerHeader className="flex flex-col gap-1">
+                  {selectedDevice.name}
+                </DrawerHeader>
+                <DrawerBody className="flex flex-col gap-4">
+                  {typeof selectedDevice.brightness === 'number' && (
+                    <Slider
+                      aria-label="Brightness"
+                      className={cx(
+                        !selectedDevice.isOn && '!opacity-10',
+                        'pointer-events-auto'
+                      )}
+                      classNames={{ track: '!border-r-[transparent]' }}
+                      defaultValue={selectedDevice.brightness ?? 0}
+                      isDisabled={!selectedDevice.isOn}
+                      maxValue={100}
+                      minValue={0}
+                      onChangeEnd={e => setBrightness(selectedDevice.addr, +e)}
+                    />
+                  )}
+
+                  <pre>{JSON.stringify(selectedDevice, null, 2)}</pre>
+                </DrawerBody>
+                <DrawerFooter>
+                  <Button color="danger" variant="light" onPress={onClose}>
+                    Close
+                  </Button>
+                </DrawerFooter>
+              </>
+            )
+          }
+        </DrawerContent>
+      </Drawer>
     </main>
   );
 }

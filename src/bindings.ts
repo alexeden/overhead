@@ -56,11 +56,12 @@ export type AppError =
   | { Tp: TpError };
 export type Device = {
   addr: string;
+  brightness: number | null;
+  hwType: string;
   id: string;
+  isOn: boolean;
   model: string;
   name: string;
-  brightness: number | null;
-  isOn: boolean;
 };
 /**
  * Error response for a section of the JSON response

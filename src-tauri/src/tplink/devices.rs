@@ -56,14 +56,13 @@ impl Device {
             Ok(Device::KL135(KL135::new(addr)))
         } else {
             Err(TpError::UnknownModel(model.to_string()))
-            // warn!("Unknown device model {:?}", model);
-            // None
         }
     }
 
     pub fn try_into_dimmable(&mut self) -> TpResult<&mut impl Dimmable> {
         match self {
-            Device::HS220(d) | Device::KL135(d) => Ok(d),
+            Device::HS220(d) => Ok(d),
+            Device::KL135(d) => Ok(d),
             _ => Err(TpError::Unsupported("dimmable".to_string())),
         }
     }
