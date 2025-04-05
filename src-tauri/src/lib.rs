@@ -77,7 +77,7 @@ pub fn run() {
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(
             tauri_plugin_log::Builder::new()
-                .level(log::LevelFilter::Info)
+                .level(log::LevelFilter::Debug)
                 .build(),
         )
         .plugin(tauri_plugin_shell::init())
@@ -101,8 +101,6 @@ pub fn run() {
                         app,
                         &[&MenuItem::with_id(app, "quit", "Test", true, None::<&str>)?],
                     )?)
-                    // .menu_on_left_click(true)
-                    // .m
                     .build(app)?;
             }
             Ok(())

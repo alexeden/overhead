@@ -31,7 +31,9 @@ macro_rules! new_device {
 
 new_device!(EP10);
 new_device!(HS220);
+new_device!(KL135);
 impl Dimmable for HS220 {}
+impl Dimmable for KL135 {}
 
 #[derive(Clone, Debug)]
 pub enum Device {
@@ -39,6 +41,8 @@ pub enum Device {
     EP10(EP10),
     /// Dimmable switch
     HS220(HS220),
+    /// Smart bulb
+    KL135(KL135),
 }
 
 impl Device {
@@ -48,6 +52,8 @@ impl Device {
             Ok(Device::EP10(EP10::new(addr)))
         } else if model.contains("HS220") || model.contains("KP405") || model.contains("ES20M") {
             Ok(Device::HS220(HS220::new(addr)))
+        } else if model.contains("KL135") {
+            Ok(Device::KL135(KL135::new(addr)))
         } else {
             Err(TpError::UnknownModel(model.to_string()))
             // warn!("Unknown device model {:?}", model);
@@ -57,7 +63,7 @@ impl Device {
 
     pub fn try_into_dimmable(&mut self) -> TpResult<&mut impl Dimmable> {
         match self {
-            Device::HS220(d) => Ok(d),
+            Device::HS220(d) | Device::KL135(d) => Ok(d),
             _ => Err(TpError::Unsupported("dimmable".to_string())),
         }
     }
@@ -68,6 +74,7 @@ impl CommonCapabilities for Device {
         match self {
             Device::EP10(d) => d.send(msg),
             Device::HS220(d) => d.send(msg),
+            Device::KL135(d) => d.send(msg),
         }
     }
 }

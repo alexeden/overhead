@@ -37,11 +37,12 @@ impl From<TpError> for AppError {
 #[serde(rename_all = "camelCase")]
 pub struct Device {
     pub addr: SocketAddr,
+    pub brightness: Option<u8>,
+    pub hw_type: String,
     pub id: String,
+    pub is_on: bool,
     pub model: String,
     pub name: String,
-    pub brightness: Option<u8>,
-    pub is_on: bool,
 }
 
 impl From<(SocketAddr, DeviceResponse)> for Device {
@@ -49,6 +50,7 @@ impl From<(SocketAddr, DeviceResponse)> for Device {
         Self {
             addr,
             brightness: resp.sysinfo().brightness,
+            hw_type: resp.sysinfo().hw_type.clone(),
             id: resp.sysinfo().device_id.clone(),
             is_on: resp.sysinfo().is_on(),
             model: resp.sysinfo().model.clone(),

@@ -33,6 +33,7 @@ pub struct SysInfo {
     pub hw_type: String,
     pub hw_ver: String,
     pub latitude_i: Option<i32>,
+    pub light_state: Option<LightState>,
     pub longitude_i: Option<i32>,
     #[serde(alias = "mic_mac")]
     pub mac: String,
@@ -66,4 +67,19 @@ impl From<SysInfo> for DeviceResponse {
             system: System { sysinfo },
         }
     }
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, specta::Type)]
+pub struct LightState {
+    dft_on_state: DftOnState,
+    on_off: u8,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, specta::Type)]
+pub struct DftOnState {
+    pub brightness: u8,
+    pub color_temp: u8,
+    pub hue: u8,
+    pub mode: String,
+    pub saturation: u8,
 }
