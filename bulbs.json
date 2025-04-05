@@ -1,0 +1,148 @@
+[
+  {
+    "system": {
+      "get_sysinfo": {
+        "active_mode": "none",
+        "alias": "Dining Light",
+        "ctrl_protocols": {
+          "name": "Linkie",
+          "version": "1.0"
+        },
+        "description": "Smart Wi-Fi LED Bulb with Color Changing",
+        "dev_state": "normal",
+        "deviceId": "8012F9190EB182F28C9C5B5B07E2C9A822788D29",
+        "disco_ver": "1.0",
+        "err_code": 0,
+        "hwId": "CCCEA814DB7786E5A00F65412AAD11CE",
+        "hw_ver": "1.0",
+        "is_color": 1,
+        "is_dimmable": 1,
+        "is_factory": false,
+        "is_variable_color_temp": 1,
+        "latitude_i": -1879048193,
+        "light_state": {
+          "dft_on_state": {
+            "brightness": 100,
+            "color_temp": 0,
+            "hue": 333,
+            "mode": "normal",
+            "saturation": 100
+          },
+          "on_off": 0
+        },
+        "longitude_i": -1879048193,
+        "mic_mac": "74FECEB8449B",
+        "mic_type": "IOT.SMARTBULB",
+        "model": "KL135(US)",
+        "obd_src": "tplink",
+        "oemId": "C1AC4843FD5824205B8C51C5131FB350",
+        "preferred_state": [
+          {
+            "brightness": 50,
+            "color_temp": 2700,
+            "hue": 0,
+            "index": 0,
+            "saturation": 0
+          },
+          {
+            "brightness": 100,
+            "color_temp": 0,
+            "hue": 0,
+            "index": 1,
+            "saturation": 100
+          },
+          {
+            "brightness": 100,
+            "color_temp": 0,
+            "hue": 120,
+            "index": 2,
+            "saturation": 100
+          },
+          {
+            "brightness": 100,
+            "color_temp": 0,
+            "hue": 240,
+            "index": 3,
+            "saturation": 100
+          }
+        ],
+        "rssi": -51,
+        "status": "new",
+        "sw_ver": "1.0.15 Build 240429 Rel.154143"
+      }
+    }
+  },
+  {
+    "system": {
+      "get_sysinfo": {
+        "active_mode": "none",
+        "alias": "Bedroom Lamp",
+        "ctrl_protocols": {
+          "name": "Linkie",
+          "version": "1.0"
+        },
+        "description": "Smart Wi-Fi LED Bulb with Color Changing",
+        "dev_state": "normal",
+        "deviceId": "8012E01BC29770A67F91A51E4F7F90342279A20A",
+        "disco_ver": "1.0",
+        "err_code": 0,
+        "hwId": "CCCEA814DB7786E5A00F65412AAD11CE",
+        "hw_ver": "1.0",
+        "is_color": 1,
+        "is_dimmable": 1,
+        "is_factory": false,
+        "is_variable_color_temp": 1,
+        "latitude_i": -1879048193,
+        "light_state": {
+          "dft_on_state": {
+            "brightness": 100,
+            "color_temp": 0,
+            "hue": 120,
+            "mode": "normal",
+            "saturation": 100
+          },
+          "on_off": 0
+        },
+        "longitude_i": -1879048193,
+        "mic_mac": "74FECEB82EF1",
+        "mic_type": "IOT.SMARTBULB",
+        "model": "KL135(US)",
+        "obd_src": "tplink",
+        "oemId": "C1AC4843FD5824205B8C51C5131FB350",
+        "preferred_state": [
+          {
+            "brightness": 50,
+            "color_temp": 2700,
+            "hue": 0,
+            "index": 0,
+            "saturation": 0
+          },
+          {
+            "brightness": 100,
+            "color_temp": 0,
+            "hue": 0,
+            "index": 1,
+            "saturation": 100
+          },
+          {
+            "brightness": 100,
+            "color_temp": 0,
+            "hue": 120,
+            "index": 2,
+            "saturation": 100
+          },
+          {
+            "brightness": 100,
+            "color_temp": 0,
+            "hue": 240,
+            "index": 3,
+            "saturation": 100
+          }
+        ],
+        "rssi": -60,
+        "status": "new",
+        "sw_ver": "1.0.15 Build 240429 Rel.154143"
+      }
+    }
+  }
+]
